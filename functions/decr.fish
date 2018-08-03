@@ -66,14 +66,14 @@ function decr --description "Custom file decryption script"
   end
   
   # Serial execution
-  #for i in $jobs
-  #  openssl aes-192-ctr -d -pass env:password -in $i | tar -x
-  #end
+  for i in $jobs
+    openssl aes-192-ctr -d -pass env:password -in $i | tar -x
+  end
   
   # Parallel execution
-  for i in $jobs
-    openssl aes-192-ctr -d -pass env:password -in $i | tar -x &
-  end
+  #for i in $jobs
+  #  openssl aes-192-ctr -d -pass env:password -in $i | tar -x &
+  #end
   
   set password 00000000000000000000000000000000
   set --erase password

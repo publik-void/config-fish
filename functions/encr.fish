@@ -59,16 +59,16 @@ function encr --description "Custom file encryption script"
   end
   
   # Serial execution
-  #for i in $jobs
-  #  tar -cf - $i |\
-  #  openssl aes-192-ctr -e -salt -pass env:password -out {$i}.tar.enc
-  #end
-  
-  # Parallel execution
   for i in $jobs
     tar -cf - $i |\
-    openssl aes-192-ctr -e -salt -pass env:password -out {$i}.tar.enc &
+    openssl aes-192-ctr -e -salt -pass env:password -out {$i}.tar.enc
   end
+  
+  # Parallel execution
+  #for i in $jobs
+  #  tar -cf - $i |\
+  #  openssl aes-192-ctr -e -salt -pass env:password -out {$i}.tar.enc &
+  #end
   
   set password 00000000000000000000000000000000
   set --erase password
