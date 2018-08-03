@@ -2,7 +2,7 @@ function decr --description "Custom file decryption script"
   
   if not type -q botan
     echo Required command \"botan\" could not be found. Exiting.
-    exit
+    return
   end
   
   set --erase jobs
@@ -38,12 +38,12 @@ function decr --description "Custom file decryption script"
   
   if test -z "$jobs"
     echo Nothing to be done. Exiting.
-    exit
+    return
   end
   
   if not test -e $hash_file
     echo Password hash file \"{$hash_file}\" missing. Exiting.
-    exit
+    return
   end
   
   cat $hash_file | read --local hash 
@@ -52,17 +52,17 @@ function decr --description "Custom file decryption script"
   
   echo -n "Validating password... "
   botan check_bcrypt $password $hash | read --local validation
-  set --local exit_status $status
-  if test $exit_status -eq 0
+  set --local return_status $status
+  if test $return_status -eq 0
     echo Done.
   else
     echo A problem occured while validating the password. Exiting.
-    exit $exit_status
+    return $return_status
   end
   
   if not string match $validation "Password is valid" > /dev/null
     echo Password is not valid. Exiting.
-    exit
+    return
   end
   
   # Serial execution

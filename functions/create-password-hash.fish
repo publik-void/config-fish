@@ -9,7 +9,7 @@ function create-password-hash --description "Custom password registration for la
   
   if not test -d $hashes_path
     echo Path \"{$hashes_path}\" is invalid.
-    exit
+    return
   end
   
   echo Please enter the name of the hash file: [default]
@@ -26,22 +26,22 @@ function create-password-hash --description "Custom password registration for la
     case 'y*' 'Y*' 
       echo OK, hash file \"{$hashes_path}{$filename}\" will be overwritten.
     case '*'
-      exit
+      return
     end
   end
   
   read --local --export --silent --prompt-str="Password:" password0
   read --local --export --silent --prompt-str="Repeat:" password1
   
-  set --local exit_status -1
+  set --local return_status -1
   
   if not string match $password0 $password1 > /dev/null
-    echo Passwords do not match. Exiting.
+    echo Passwords do not match. returning.
   else
     echo -n "Computing hash... "
     botan gen_bcrypt --work-factor=14 $password0 > {$hashes_path}{$filename}
-    set exit_status $status
-    if test $exit_status -eq 0
+    set return_status $status
+    if test $return_status -eq 0
       chmod 600 {$hashes_path}{$filename}
       echo Done.
     end
@@ -51,6 +51,6 @@ function create-password-hash --description "Custom password registration for la
   set password1 00000000000000000000000000000000
   set --erase password0
   set --erase password1
-  exit $exit_status
+  return $return_status
 end
 
