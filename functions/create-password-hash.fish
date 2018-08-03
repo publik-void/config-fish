@@ -42,6 +42,7 @@ function create-password-hash --description "Custom password registration for la
     botan gen_bcrypt --work-factor=14 $password0 > {$hashes_path}{$filename}
     set exit_status $status
     if test $exit_status -eq 0
+      chmod 600 {$hashes_path}{$filename}
       echo Done.
     end
   end
