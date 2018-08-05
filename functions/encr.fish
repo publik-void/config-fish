@@ -5,11 +5,11 @@ function encr --description "Custom file encryption script"
     return
   end
   
-  set --erase jobs
-  set files (string trim $argv --right --chars '/')
+  set --erase queued_files
+  set input_files (string trim $argv --right --chars '/')
   set hash_file ~/.config/fish/password-hashes/default
   
-  for i in $files
+  for i in $input_files
     if not test -e $i
       echo \"{$i}\" does not exist.
     else
@@ -21,15 +21,15 @@ function encr --description "Custom file encryption script"
         case 'n*' 'N*' 
           echo As requested, \"$i\" will not be archived.
         case '*'
-          set jobs $jobs $i
+          set queued_files $queued_files $i
         end
       else
-        set jobs $jobs $i
+        set queued_files $queued_files $i
       end
     end
   end
   
-  if test -z "$jobs"
+  if test -z "$queued_files"
     echo Nothing to be done. Exiting.
     return
   end
@@ -59,16 +59,26 @@ function encr --description "Custom file encryption script"
   end
   
   # Serial execution
-  for i in $jobs
-    tar -cf - $i |\
-    openssl aes-192-ctr -e -salt -pass env:password -out {$i}.tar.enc
-  end
+  #for i in $queued_files
+  #  tar -C (dirname $i) -cf - (basename $i) |\
+  #    openssl aes-192-ctr -e -salt -pass env:password -out {$i}.tar.enc
+  #end
   
   # Parallel execution
-  #for i in $jobs
-  #  tar -cf - $i |\
-  #  openssl aes-192-ctr -e -salt -pass env:password -out {$i}.tar.enc &
+  #for i in $queued_files
+  #  tar -C (dirname $i) -cf - (basename $i) |\
+  #    openssl aes-192-ctr -e -salt -pass env:password -out {$i}.tar.enc &
   #end
+
+  # Parallel execution using GNU parallel
+  set --erase jobs
+  for i in $queued_files
+    set --local dirname (dirname $i)
+    set --local basename (basename $i)
+    set jobs $jobs "tar -C \"$dirname\" -cf - \"$basename\" |\
+      openssl aes-192-ctr -e -salt -pass env:password -out \"$i.tar.enc\""
+  end
+  parallel ::: $jobs
   
   set password 00000000000000000000000000000000
   set --erase password

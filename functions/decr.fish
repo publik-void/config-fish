@@ -5,11 +5,11 @@ function decr --description "Custom file decryption script"
     return
   end
   
-  set --erase jobs
-  set files (string trim $argv --right --chars '/')
+  set --erase queued_files
+  set input_files (string trim $argv --right --chars '/')
   set hash_file ~/.config/fish/password-hashes/default
   
-  for i in $files
+  for i in $input_files
     if not test -e $i
   		echo \"{$i}\" does not exist.
     else if test -d $i
@@ -28,15 +28,15 @@ function decr --description "Custom file decryption script"
         case 'n*' 'N*' 
           echo As requested, \"$i\" will not be unarchived.
         case '*'
-          set jobs $jobs $i
+          set queued_files $queued_files $i
         end
       else
-        set jobs $jobs $i
+        set queued_files $queued_files $i
       end
     end
   end
   
-  if test -z "$jobs"
+  if test -z "$queued_files"
     echo Nothing to be done. Exiting.
     return
   end
@@ -66,15 +66,26 @@ function decr --description "Custom file decryption script"
   end
   
   # Serial execution
-  for i in $jobs
-    openssl aes-192-ctr -d -pass env:password -in $i | tar -x
-  end
-  
-  # Parallel execution
-  #for i in $jobs
-  #  openssl aes-192-ctr -d -pass env:password -in $i | tar -x &
+  #for i in $queued_files
+  #  openssl aes-192-ctr -d -pass env:password -in $i |\
+  #    tar -C (dirname $i) -x
   #end
   
+  # Parallel execution
+  #for i in $queued_files
+  #  openssl aes-192-ctr -d -pass env:password -in $i |\
+  #    tar -C (dirname $i) -x &
+  #end
+  
+  # Parallel execution using GNU parallel
+  set --erase jobs
+  for i in $queued_files
+    set --local dirname (dirname $i)
+    set jobs $jobs "openssl aes-192-ctr -d -pass env:password -in \"$i\" |\
+      tar -C \"$dirname\" -x"
+  end
+  parallel ::: $jobs
+
   set password 00000000000000000000000000000000
   set --erase password
 end
