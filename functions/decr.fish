@@ -76,13 +76,13 @@ function decr --description "Custom file decryption script"
   # Serial execution
   #for i in $queued_files
   #  openssl aes-192-ctr -d -pass env:password -in $i |\
-  #    tar -C (dirname $i) -x
+  #    tar -C (dirname $i) -xf -
   #end
   
   # Parallel execution
   #for i in $queued_files
   #  openssl aes-192-ctr -d -pass env:password -in $i |\
-  #    tar -C (dirname $i) -x &
+  #    tar -C (dirname $i) -xf - &
   #end
   
   # Parallel execution using GNU parallel
@@ -90,7 +90,7 @@ function decr --description "Custom file decryption script"
   for i in $queued_files
     set --local dirname (dirname $i)
     set jobs $jobs "openssl aes-192-ctr -d -pass env:password -in \"$i\" |\
-      tar -C \"$dirname\" -x"
+      tar -C \"$dirname\" -xf -"
   end
   parallel ::: $jobs
 
