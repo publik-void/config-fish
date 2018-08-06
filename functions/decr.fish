@@ -7,7 +7,7 @@ function decr --description "Custom file decryption script"
   
   set --erase queued_files
   set input_files (string trim $argv --right --chars '/')
-  set hash_file ~/.config/fish/password-hashes/default
+  set hash_file ~/.config/fish/password-hashes/default.hash
   set salt_file ~/.config/fish/password-hashes/default.salt
   
   for i in $input_files
