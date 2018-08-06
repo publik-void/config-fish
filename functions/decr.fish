@@ -8,6 +8,7 @@ function decr --description "Custom file decryption script"
   set --erase queued_files
   set input_files (string trim $argv --right --chars '/')
   set hash_file ~/.config/fish/password-hashes/default
+  set salt_file ~/.config/fish/password-hashes/default.salt
   
   for i in $input_files
     if not test -e $i
@@ -46,12 +47,19 @@ function decr --description "Custom file decryption script"
     return
   end
   
+  if not test -e $salt_file
+    echo Password salt file \"{$salt_file}\" missing. Exiting.
+    return
+  end
+  
   cat $hash_file | read --local hash 
+  cat $salt_file | read --local salt
   
   read --local --export --silent --prompt-str="Password:" password
   
   echo -n "Validating password... "
-  botan check_bcrypt $password $hash | read --local validation
+  botan check_bcrypt (string join "" $salt $password) $hash |\
+    read --local validation
   set --local return_status $status
   if test $return_status -eq 0
     echo Done.

@@ -1,4 +1,5 @@
-function create-password-hash --description "Custom password registration for later password validation"
+function create-password-hash --description\
+  "Custom password registration for later password validation"
   
   if test -z "$argv[1]"
     set hashes_path ~/.config/fish/password-hashes/
@@ -12,13 +13,15 @@ function create-password-hash --description "Custom password registration for la
     return
   end
   
-  echo Please enter the name of the hash file: [default]
+  echo Please enter the name \(without file extension\)\
+    of the hash files: [default]
   read --prompt="set_color green; echo -n '> '; set_color normal;"\
     --local filename
   if test -z "$filename"
     set filename default
-  end
-  if test -e {$hashes_path}{$filename}
+end
+  if test -e {$hashes_path}{$filename}.hash;\
+      or test -e {$hashes_path}{$filename}.salt
     echo \"{$filename}\" already exists. Overwrite\? [y/N]
     read --prompt="set_color green; echo -n '> '; set_color normal;"\
           --local overwrite
@@ -38,11 +41,16 @@ function create-password-hash --description "Custom password registration for la
   if not string match $password0 $password1 > /dev/null
     echo Passwords do not match. returning.
   else
+    botan rng --system 32 | read --local salt
+    echo Salt is\: $salt
     echo -n "Computing hash... "
-    botan gen_bcrypt --work-factor=14 $password0 > {$hashes_path}{$filename}
+    botan gen_bcrypt --work-factor=14 (string join "" $salt $password0)\
+      > {$hashes_path}{$filename}.hash
     set return_status $status
     if test $return_status -eq 0
-      chmod 600 {$hashes_path}{$filename}
+      echo $salt > {$hashes_path}{$filename}.salt
+      chmod 600 {$hashes_path}{$filename}.hash\
+        {$hashes_path}{$filename}.salt
       echo Done.
     end
   end
