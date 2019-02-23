@@ -10,3 +10,6 @@ set -Ux EDITOR nvim
 #if type -q kitty
 #  kitty + complete setup fish | source
 #end
+
+test -e {$HOME}/.iterm2_shell_integration.fish ; and source {$HOME}/.iterm2_shell_integration.fish
+
