@@ -33,7 +33,7 @@ function decr --description "Custom file decryption script"
     echo Required command \"openssl\" could not be found. Exiting.
     return
   else
-    echo Using ($ssl_command version)
+    echo Using (eval $ssl_command version)
   end
 
   set --erase queued_files
