@@ -1,5 +1,3 @@
-# Requires Botan, OpenSSL, GNU Parallel, GNU Tar
-# And optionally lz4
 function decr --description "Custom file decryption script"
   
   if not type -q botan
@@ -7,44 +5,21 @@ function decr --description "Custom file decryption script"
     return
   end
   
-  set --global tar_command gtar
-  if not type -q $tar_command
-    set --global tar_command tar
-  end
-  
-  if not type -q $tar_command
-    echo Required command \"tar\" or \"gtar\" could not be found. Exiting.
-    return
-  end
-  
-  if test $tar_command = tar; and test (uname) != Linux
-    echo Caution: Using \"tar\" although this system does not appear to be GNU.
-  end
-
   set --erase queued_files
   set input_files (string trim $argv --right --chars '/')
   set hash_file ~/.config/fish/password-hashes/default.hash
   set salt_file ~/.config/fish/password-hashes/default.salt
   
   for i in $input_files
-    set --local filetype ""
-    if test ".tar.enc" = (string sub --start -8 $i)
-      set filetype ".tar.enc"
-    else if test ".tar.lz4.enc" = (string sub --start -12 $i)
-      set filetype ".tar.lz4.enc"
-    end
-
     if not test -e $i
-      echo \"{$i}\" does not exist.
+  		echo \"{$i}\" does not exist.
     else if test -d $i
       echo \"{$i}\" is a directory.
-    else if test $filetype = ""
-      echo \"{$i}\" does not have the required filename extension.
-    else if test $filetype = ".tar.lz4.enc"; and not type -q lz4
-      echo Required command \"lz4\" could not be found in order \
-      to extract \"{$i}\".
-    else
-      set --local extracted\
+  	else if not string match ".tar.enc" (string sub --start -8 $i)\
+      > /dev/null
+  		echo \"{$i}\" does not have the required extension \".tar.enc\". 
+  	else
+  		set --local extracted\
       (string sub --length (math (string length $i) - 8) $i)
       if test -e $extracted
         echo \"$extracted\" already exists. Overwrite\? [Y/n]
@@ -93,7 +68,7 @@ function decr --description "Custom file decryption script"
     return $return_status
   end
   
-  if not test $validation = "Password is valid"
+  if not string match $validation "Password is valid" > /dev/null
     echo Password is not valid. Exiting.
     return
   end
@@ -113,14 +88,9 @@ function decr --description "Custom file decryption script"
   # Parallel execution using GNU parallel
   set --erase jobs
   for i in $queued_files
-    set --local extraction_pipe ""
-    if test ".tar.lz4.enc" = (string sub --start -12 $i)
-      set extraction_pipe " | lz4 -d"
-    end
-
     set --local dirname (dirname $i)
-    set jobs $jobs "openssl aes-192-ctr -d -pass env:password -in \"$i\"\
-      $extraction_pipe | tar -C \"$dirname\" -xf -"
+    set jobs $jobs "openssl aes-192-ctr -d -pass env:password -in \"$i\" |\
+      tar -C \"$dirname\" -xf -"
   end
   parallel ::: $jobs
 

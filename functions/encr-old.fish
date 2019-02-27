@@ -1,46 +1,10 @@
-# Requires Botan, OpenSSL, GNU Parallel, GNU Tar
-# And optionally lz4
-function encr --description "Custom file encryption script"
+# Requires Botan, OpenSSL, GNU Parallel and GNU Tar
 
+function encr --description "Custom file encryption script"
+  
   if not type -q botan
     echo Required command \"botan\" could not be found. Exiting.
     return
-  end
-  
-  set --global tar_command gtar
-  if not type -q $tar_command
-    set --global tar_command tar
-  end
-  
-  if not type -q $tar_command
-    echo Required command \"tar\" or \"gtar\" could not be found. Exiting.
-    return
-  end
-  
-  if test $tar_command = tar; and test (uname) != Linux
-    echo Caution: Using \"tar\" although this system does not appear to be GNU.
-  end
-
-  set --global compression none
-  if test $argv[1] = -z
-    set compression lz4
-    set argv $argv[2..-1]
-  end
-
-  if test $compression = lz4
-    if not type -q lz4
-      echo Required command \"lz4\" could not be found. Exiting.
-      return
-    end
-  end
-
-  set --global compression_pipe ""
-  set --global compression_ext ""
-  switch $compression
-  case 'lz4'
-    set compression_pipe " | lz4"
-    set compression_ext ".lz4"
-  case '*'
   end
   
   set --erase queued_files
@@ -51,21 +15,21 @@ function encr --description "Custom file encryption script"
   for i in $input_files
     if not test -e $i
       echo \"{$i}\" does not exist.
-  else
-    if test -e {$i}.tar.enc
-      echo \"{$i}.tar.enc\" already exists. Overwrite\? [Y/n]
-      read --prompt="set_color green; echo -n '> '; set_color normal;"\
-      --local overwrite
-      switch $overwrite
-      case 'n*' 'N*' 
-        echo As requested, \"$i\" will not be archived.
-      case '*'
+    else
+      if test -e {$i}.tar.enc
+        echo \"{$i}.tar.enc\" already exists. Overwrite\? [Y/n]
+        read --prompt="set_color green; echo -n '> '; set_color normal;"\
+          --local overwrite
+        switch $overwrite
+        case 'n*' 'N*' 
+          echo As requested, \"$i\" will not be archived.
+        case '*'
+          set queued_files $queued_files $i
+        end
+      else
         set queued_files $queued_files $i
       end
-    else
-      set queued_files $queued_files $i
     end
-  end
   end
   
   if test -z "$queued_files"
@@ -90,7 +54,7 @@ function encr --description "Custom file encryption script"
   
   echo -n "Validating password... "
   botan check_bcrypt (string join "" $salt $password) $hash |\
-  read --local validation
+    read --local validation
   set --local return_status $status
   if test $return_status -eq 0
     echo Done.
@@ -115,15 +79,14 @@ function encr --description "Custom file encryption script"
   #  tar -C (dirname $i) -cf - (basename $i) |\
   #    openssl aes-192-ctr -e -salt -pass env:password -out {$i}.tar.enc &
   #end
-  
+
   # Parallel execution using GNU parallel
   set --erase jobs
   for i in $queued_files
     set --local dirname (dirname $i)
     set --local basename (basename $i)
-    set jobs $jobs "$tar_command -C \"$dirname\" -cf - \"$basename\"\
-    $compression_pipe | openssl aes-192-ctr -e -salt -pass env:password \
-    -out \"$i.tar$compression_ext.enc\""
+    set jobs $jobs "tar -C \"$dirname\" -cf - \"$basename\" |\
+      openssl aes-192-ctr -e -salt -pass env:password -out \"$i.tar.enc\""
   end
   parallel ::: $jobs
   
