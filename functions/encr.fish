@@ -1,4 +1,4 @@
-# Requires Botan, OpenSSL, GNU Parallel, GNU Tar
+# Requires Botan, OpenSSL, GNU Parallel
 # And optionally lz4
 function encr --description "Custom file encryption script"
 
@@ -18,7 +18,22 @@ function encr --description "Custom file encryption script"
   end
   
   if test $tar_command = tar; and test (uname) != Linux
-    echo Caution: Using \"tar\" although this system does not appear to be GNU.
+    echo Caution: Using \"tar\" (not \"gtar\") although this system does not\
+    appear to be GNU.
+  end
+
+  set --global ssl_command openssl
+  # Prefer paths where a newer openssl version is more likely.
+  if test -e /usr/local/opt/libressl/bin/openssl
+    set ssl_command /usr/local/opt/libressl/bin/openssl
+  else if test -e /usr/local/bin/openssl
+    set ssl_command /usr/local/bin/openssl
+  end
+  if not type -q $ssl_command
+    echo Required command \"openssl\" could not be found. Exiting.
+    return
+  else
+    echo Using ($ssl_command version)
   end
 
   set --global compression none
@@ -122,7 +137,7 @@ function encr --description "Custom file encryption script"
     set --local dirname (dirname $i)
     set --local basename (basename $i)
     set jobs $jobs "$tar_command -C \"$dirname\" -cf - \"$basename\"\
-    $compression_pipe | openssl aes-192-ctr -e -salt -pass env:password \
+    $compression_pipe | $ssl_command aes-128-ctr -e -salt -pass env:password \
     -out \"$i.tar$compression_ext.enc\""
   end
   parallel ::: $jobs
