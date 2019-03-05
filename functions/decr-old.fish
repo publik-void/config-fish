@@ -1,4 +1,4 @@
-function decr --description "Custom file decryption script"
+function decr-old --description "Custom file decryption script"
   
   if not type -q botan
     echo Required command \"botan\" could not be found. Exiting.

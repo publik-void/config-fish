@@ -1,6 +1,6 @@
-# Requires Botan, OpenSSL, GNU Parallel and GNU Tar
+# Requires Botan, OpenSSL and GNU Parallel
 
-function encr --description "Custom file encryption script"
+function encr-old --description "Custom file encryption script"
   
   if not type -q botan
     echo Required command \"botan\" could not be found. Exiting.
