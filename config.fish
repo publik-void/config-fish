@@ -11,5 +11,7 @@ set -Ux EDITOR nvim
 #  kitty + complete setup fish | source
 #end
 
+set fish_escape_delay_ms 10
+
 test -e {$HOME}/.iterm2_shell_integration.fish ; and source {$HOME}/.iterm2_shell_integration.fish
 
