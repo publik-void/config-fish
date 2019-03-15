@@ -1,5 +1,5 @@
 switch (hostname)
-case lasse-mbp-0
+case lasse-mbp-0 lasse-mba-0
   export LANG=en_US
 end
 
