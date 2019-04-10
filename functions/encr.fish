@@ -6,19 +6,19 @@ function encr --description "Custom file encryption script"
     echo Required command \"botan\" could not be found. Exiting.
     return
   end
-  
+
   set --global tar_command gtar
   if not type -q $tar_command
     set --global tar_command tar
   end
-  
+
   if not type -q $tar_command
     echo Required command \"tar\" or \"gtar\" could not be found. Exiting.
     return
   end
-  
+
   if test $tar_command = tar; and test (uname) != Linux
-    echo Caution: Using \"tar\" (not \"gtar\") although this system does not\
+    echo Caution: Using \"tar\" \(not \"gtar\"\) although this system does not\
     appear to be GNU.
   end
 
@@ -37,14 +37,29 @@ function encr --description "Custom file encryption script"
   end
 
   set --global compression none
-  if test $argv[1] = -z
-    set compression lz4
-    set argv $argv[2..-1]
+  switch $argv[1]
+    case "-z=*"
+      set compression (string sub --start 5 0$argv[1])
+      set argv $argv[2..-1]
+    case "-z"
+      # Default compression
+      set compression lz4
+      set argv $argv[2..-1]
   end
 
-  if test $compression = lz4
-    if not type -q lz4
-      echo Required command \"lz4\" could not be found. Exiting.
+  set --global compression_level default
+  if not test $compression = none
+    switch $argv[1]
+      case ""
+      case "-l=*"
+        set compression_level (string sub --start 5 0$argv[1])
+        set argv $argv[2..-1]
+    end
+  end
+
+  if not test $compression = none
+    if not type -q $compression
+      echo Required command \"$compression\" could not be found. Exiting.
       return
     end
   end
@@ -52,17 +67,28 @@ function encr --description "Custom file encryption script"
   set --global compression_pipe ""
   set --global compression_ext ""
   switch $compression
-  case 'lz4'
-    set compression_pipe " | lz4"
-    set compression_ext ".lz4"
-  case '*'
+    case 'lz4'
+      set compression_pipe " | lz4"
+      set compression_ext ".lz4"
+    case 'xz'
+      set compression_pipe " | xz"
+      set compression_ext ".xz"
+    case '*'
   end
-  
+  if test compression_pipe != ""
+    switch $compression_level
+      case "default"
+      case "*"
+        set compression_pipe\
+          (string join " -" $compression_pipe $compression_level)
+    end
+  end
+
   set --erase queued_files
   set input_files (string trim $argv --right --chars '/')
   set hash_file ~/.config/fish/password-hashes/default.hash
   set salt_file ~/.config/fish/password-hashes/default.salt
-  
+
   for i in $input_files
     if not test -e $i
       echo \"{$i}\" does not exist.
