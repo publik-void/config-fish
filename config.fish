@@ -5,7 +5,7 @@ end
 
 set -Ux EDITOR nvim
 
-set -Ux $MOSH_PREDICTION_DISPLAY always
+set -Ux MOSH_PREDICTION_DISPLAY always
 
 ## This is suggested by the kitty docs as a way to keep fish completions up-to-
 ## date. But it adds a substantial amount of startup time to the fish shell.
