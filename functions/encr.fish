@@ -24,6 +24,9 @@ function encr --description "Custom file encryption script"
 
   set --global ssl_command openssl
   # Prefer paths where a newer openssl version is more likely.
+  # LibreSSL and OpenSSL seem to be quite picky about which version is used.
+  # This could present major issues for me in the future so I might want to
+  # implement this in a better and more compatible way…
   if test -e /usr/local/opt/libressl/bin/openssl
     set ssl_command /usr/local/opt/libressl/bin/openssl
   else if test -e /usr/local/bin/openssl
