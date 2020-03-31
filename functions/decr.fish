@@ -11,23 +11,29 @@ function decr --description "Custom file decryption script"
   if not type -q $tar_command
     set --global tar_command tar
   end
-
   if not type -q $tar_command
     echo Required command \"tar\" or \"gtar\" could not be found. Exiting.
     return
   end
-
   if test $tar_command = tar; and test (uname) != Linux
-    echo Caution: Using \"tar\" (not \"gtar\") although this system does not\
+    echo Caution: Using \"tar\" \(not \"gtar\"\) although this system does not\
     appear to be GNU.
   end
 
+  # Try to use libressl if possible.
+  # Prefer paths where a newer ssl version is more likely.
   set --global ssl_command openssl
-  # Prefer paths where a newer openssl version is more likely.
   if test -e /usr/local/opt/libressl/bin/openssl
     set ssl_command /usr/local/opt/libressl/bin/openssl
+  else if type -q libressl
+    set ssl_command libressl
   else if test -e /usr/local/bin/openssl
     set ssl_command /usr/local/bin/openssl
+  end
+  switch $argv[1]
+    case "-c=*"
+      set ssl_command (string sub --start 5 0$argv[1])
+      set argv $argv[2..-1]
   end
   if not type -q $ssl_command
     echo Required command \"openssl\" could not be found. Exiting.
