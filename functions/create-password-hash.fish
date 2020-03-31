@@ -1,18 +1,18 @@
 function create-password-hash --description\
   "Custom password registration for later password validation"
-  
+
   if test -z "$argv[1]"
     set hashes_path ~/.config/fish/password-hashes/
   else
     set hashes_path\
     (string join (string trim '' {$argv[1]} --right --chars '/') '/')
   end
-  
+
   if not test -d $hashes_path
     echo Path \"{$hashes_path}\" is invalid.
     return
   end
-  
+
   echo Please enter the name \(without file extension\)\
     of the hash files: [default]
   read --prompt="set_color green; echo -n '> '; set_color normal;"\
@@ -32,12 +32,12 @@ end
       return
     end
   end
-  
+
   read --local --export --silent --prompt-str="Password:" password0
   read --local --export --silent --prompt-str="Repeat:" password1
-  
+
   set --local return_status -1
-  
+
   if not string match $password0 $password1 > /dev/null
     echo Passwords do not match. returning.
   else
@@ -54,7 +54,7 @@ end
       echo Done.
     end
   end
-  
+
   set password0 00000000000000000000000000000000
   set password1 00000000000000000000000000000000
   set --erase password0
