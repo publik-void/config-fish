@@ -20,8 +20,8 @@ function decr --description "Custom file decryption script"
     appear to be GNU.
   end
 
-  # Try to use libressl if possible.
-  # Prefer paths where a newer ssl version is more likely.
+  # Try to use LibreSSL if possible.
+  # Prefer paths where a newer SSL version is more likely.
   set --global ssl_command openssl
   if test -e /usr/local/opt/libressl/bin/openssl
     set ssl_command /usr/local/opt/libressl/bin/openssl
