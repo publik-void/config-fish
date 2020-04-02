@@ -17,11 +17,14 @@ function decr --description "Custom file decryption script"
   end
   if test $tar_command = tar; and test (uname) != Linux
     echo Caution: Using \"tar\" \(not \"gtar\"\) although this system does not\
-    appear to be GNU.
+    appear to be GNU. This is likely not a problem, though.
   end
 
   # Try to use LibreSSL if possible.
   # Prefer paths where a newer SSL version is more likely.
+  # I should look into a way of incorporating the encryption algorithm and the
+  # key hashing mechanism into the file name or so. I might also want to
+  # consider expanding the options to this script accordingly…
   set --global ssl_command openssl
   if test -e /usr/local/opt/libressl/bin/openssl
     set ssl_command /usr/local/opt/libressl/bin/openssl
