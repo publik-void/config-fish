@@ -9,6 +9,8 @@ set -Ux MOSH_PREDICTION_DISPLAY always
 
 set fish_escape_delay_ms 20
 
+fish_vi_key_bindings
+
 test -e {$HOME}/.iterm2_shell_integration.fish ;\
 and source {$HOME}/.iterm2_shell_integration.fish
 
