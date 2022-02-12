@@ -59,17 +59,10 @@ function fish_right_prompt --description 'Write out the right prompt'
         set -g __fish_prompt_normal (set_color normal)
     end
 
-    set -l color_cwd
-    switch "$USER"
-        case root toor
-            if set -q fish_color_cwd_root
-                set color_cwd $fish_color_cwd_root
-            else
-                set color_cwd $fish_color_cwd
-            end
-        case '*'
-            set color_cwd $fish_color_cwd
-    end
+    # Note: I had this previsouly set to switch to `$fish_color_cwd_root`,
+    # depending on user, but I already indicate the root user with the left
+    # prompt, so let's just keep the color consistent here.
+    set -l color_cwd $fish_color_cwd
 
     printf '%s ' (__fish_vcs_prompt)
 
