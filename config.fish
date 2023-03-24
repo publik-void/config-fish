@@ -34,7 +34,7 @@ test -e {$HOME}/.iterm2_shell_integration.fish ;\
 # want it to mess with my git repository in non-portable ways, however, so I'll
 # add the integration by myself. The caveat here is that the way conda does the
 # integration may presumably be subject to change over different versions.
-if which conda
+if which conda &> /dev/null
   set --function conda_executable conda
 else if test -f $HOME/anaconda3/bin/conda
   set --function conda_executable $HOME/anaconda3/bin/conda
