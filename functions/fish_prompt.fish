@@ -4,6 +4,10 @@ function fish_prompt --description 'Write out the prompt'
       fish_greeting
     end
 
+    if set --query cpcp_encryption_key_delta_exceeded
+      set-cpcp-encryption-key --random
+    end
+
     set_color $deferred_fish_mode_prompt_color
     printf $deferred_fish_mode_prompt_text
     set_color normal

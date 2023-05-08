@@ -9,6 +9,7 @@ set --universal --export MOSH_PREDICTION_DISPLAY always
 
 if status is-interactive
   set --universal --export FISH_NEW_GREETING_DELTA (math 15 x 60)
+  set --universal --export CPCP_ENCRYPTION_KEY_DELTA (math 16 x 60 x 60)
 
   set fish_escape_delay_ms 20
 
@@ -34,7 +35,7 @@ test -e {$HOME}/.iterm2_shell_integration.fish ;\
 # want it to mess with my git repository in non-portable ways, however, so I'll
 # add the integration by myself. The caveat here is that the way conda does the
 # integration may presumably be subject to change over different versions.
-if which conda &> /dev/null
+if type -q conda
   set --function conda_executable conda
 else if test -f $HOME/anaconda3/bin/conda
   set --function conda_executable $HOME/anaconda3/bin/conda

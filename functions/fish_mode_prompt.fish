@@ -2,10 +2,11 @@ function fish_mode_prompt --description "Display the `vi` mode for the prompt"
   set --function last_status $status
   set --function defer_to_fish_prompt false
 
-  # If the prompt has been idle for a while, defer to fish_prompt, which then
-  # handles the printing of a fresh greeting with some extra info
   if [ $fish_bind_mode = insert ]
     if ! set --query coming_from_non_insert_mode
+      # If additional info needs to be printed above the prompt, defer to
+      # `fish_prompt`, which then handles the printing.
+
       set --local previous_prompt_time (prompt-time --write --number=2 --elapsed)
       if begin set --query FISH_NEW_GREETING_DELTA
           and [ (count $previous_prompt_time) != 0 ]
@@ -15,13 +16,26 @@ function fish_mode_prompt --description "Display the `vi` mode for the prompt"
       else
         set --global --erase new_greeting_delta_exceeded
       end
+
+      if begin set --query CPCP_ENCRYPTION_KEY_DELTA
+          and begin not set --query CPCP_ENCRYPTION_KEY_MTIME
+            or [ (math "$(date "+%s") - $CPCP_ENCRYPTION_KEY_MTIME") -gt \
+              "$CPCP_ENCRYPTION_KEY_DELTA" ]
+          end
+        end
+        set --global cpcp_encryption_key_delta_exceeded
+      else
+        set --global --erase cpcp_encryption_key_delta_exceeded
+      end
     end
     set --global --erase coming_from_non_insert_mode
   else
     set --global coming_from_non_insert_mode
   end
 
-  if set --query new_greeting_delta_exceeded
+  if begin set --query new_greeting_delta_exceeded
+      or set --query cpcp_encryption_key_delta_exceeded
+    end
     set defer_to_fish_prompt true
   end
 
