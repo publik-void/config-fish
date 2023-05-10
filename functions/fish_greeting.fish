@@ -1,33 +1,56 @@
 function fish_greeting
-  argparse "a/all" "u/user" "f/fish-path" "t/terminal" "d/datetime" \
-    "p/previous-prompt" "c/previous-command" "n/newlines" "l/labels" -- $argv
-  if [ $status != 0 ]; return 1; end
-
   set --function label_color normal
   set --function item_color yellow
+  set --function failure_color red
+  set --function failure_string "(failure)"
   set --function separator_color green
   set --function separator " | "
 
+  set --function magazine_shorthands p c d u f t
+  set --function magazine_labels \
+    "previous prompt" \
+    "previous command" \
+    "datetime" \
+    "user" \
+    "fish path" \
+    "terminal"
+  set --function magazine_commands \
+    "show-date (prompt-time --number=2) --date --time" \
+    "show-date (command-time) --date --time" \
+    "show-date --date --time" \
+    "echo (whoami)@(hostname)" \
+    "status fish-path" \
+    "echo $TERM"
+
+  set --function n (count $magazine_shorthands)
+  set --function is (seq $n)
+
+  for i in $is
+    set --function magazine_flags[$i] \
+      (echo $magazine_labels[$i] | sed -e 's/ /_/g; s/^/_flag_/')
+    set --function magazine_longforms[$i] \
+      (echo $magazine_labels[$i] | sed -e 's/ /-/g')
+    set --function magazine_args[$i] \
+      "$magazine_shorthands[$i]/$magazine_longforms[$i]"
+  end
+
+  argparse "a/all" $magazine_args "n/newlines" "l/labels" -- $argv
+  if [ $status != 0 ]; return 1; end
+
   if set --query _flag_all
-    if set --query _flag_user; set --erase _flag_user;
-    else; set --function _flag_user --user; end
-    if set --query _flag_fish_path; set --erase _flag_fish_path;
-    else; set --function _flag_fish_path --fish-path; end
-    if set --query _flag_terminal; set --erase _flag_terminal;
-    else; set --function _flag_terminal --terminal; end
-    if set --query _flag_datetime; set --erase _flag_datetime;
-    else; set --function _flag_datetime --datetime; end
-    if set --query _flag_previous_prompt; set --erase _flag_previous_prompt;
-    else; set --function _flag_previous_prompt --previous-prompt; end
-    if set --query _flag_previous_command; set --erase _flag_previous_command;
-    else; set --function _flag_previous_command --previous-command; end
+    # Make magazine flags act as off-switches if `--all` is given
+    for i in $is
+      if set --query $magazine_flags[$i]
+        set --erase $magazine_flags[$i]
+      else
+        set --function $magazine_flags[$i] "--$magazine_longforms[$i]"
+      end
+    end
   else
-    if begin ! set --query _flag_user
-        and ! set --query _flag_fish_path
-        and ! set --query _flag_terminal
-        and ! set --query _flag_datetime
-        and ! set --query _flag_previous_prompt
-        and ! set --query _flag_previous_command
+    # Run a certain default if no magazine flags are given
+    set --query magazine_flags # Initialize loop with zero status
+    if for i in $is
+        and not set --query $magazine_flags[$i]
       end
       if [ (count (prompt-time --number 2)) != 0 ]
         fish_greeting $_flag_newlines --previous-prompt --previous-command \
@@ -44,72 +67,44 @@ function fish_greeting
   set --function items
   set --function colors
 
-  if set --query _flag_previous_prompt
-    set --append labels "previous prompt"
-    set --append items (show-date (prompt-time --number=2) --date --time)
-    set --append colors $item_color
-  end
-
-  if set --query _flag_previous_command
-    set --append labels "previous command"
-    set --append items (show-date (command-time) --date --time)
-    set --append colors $item_color
-  end
-
-  if set --query _flag_datetime
-    set --append labels "datetime"
-    set --append items (show-date --date --time)
-    set --append colors $item_color
-  end
-
-  if set --query _flag_user
-    set --append labels "user"
-    set --append items (whoami)@(hostname)
-    set --append colors $item_color
-  end
-
-  if set --query _flag_fish_path
-    set --append labels "fish path"
-    set --append items (status fish-path)
-    set --append colors $item_color
-  end
-
-  if set --query _flag_terminal
-    set --append labels "terminal"
-    set --append items $TERM
-    set --append colors $item_color
-  end
-
-  if set --query _flag_newlines
-    set separator "\n"
-  end
-
-  set --local n (count $labels)
-  if [ $n != (count $items) ]; return 2; end
-  if [ $n != (count $colors) ]; return 3; end
-  set --local is (seq 1 $n)
-  if [ $n = 0 ]; set is; end
-
-  if set --query _flag_labels
-    for i in $is; set labels[$i] "$labels[$i]: "; end
-  else
-    for i in $is; set labels[$i] ""; end
-  end
-
   for i in $is
-    set_color $label_color
-    printf $labels[$i]
-    set_color $colors[$i]
-    printf $items[$i]
-    if [ $i != $n ]
-      set_color $separator_color
-      printf $separator
-    else
-      set_color normal
-      if [ $n != 0 ]
-        echo
+    if set --query $magazine_flags[$i]
+      set --append labels $magazine_labels[$i]
+      if set --local item (eval $magazine_commands[$i] 2> /dev/null)
+        set --append items $item
+        set --append colors $item_color
+      else
+        set --append items $failure_string
+        set --append colors $failure_color
       end
     end
+  end
+
+  set --function m (count $labels)
+  set --function js (seq $m)
+
+  for j in $js
+    if set --query _flag_labels
+      set_color $label_color
+      echo -n "$labels[$j]: "
+    end
+
+    set_color $colors[$j]
+    echo -n "$items[$j]"
+
+    if [ $j != $m ]
+      if set --query _flag_newlines
+        echo
+      else
+        set_color $separator_color
+        echo -n "$separator"
+      end
+    end
+  end
+
+  if [ $m != 0 ]
+    set_color normal
+    echo
   end
 end
 
