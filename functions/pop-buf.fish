@@ -15,16 +15,8 @@ function pop-buf
 
   set --function interval "0.01"
 
-  # for older fish versions that don't have built-in booleans
-  if not type -q False
-    function False; return 1; end
-  end
-  if not type -q True
-    function True; return 0; end
-  end
-
-  set --function finished False
-  set --function timeout False
+  set --function finished false
+  set --function timeout false
   set --function exit_status 0
   set --function keys
   set --function values
@@ -61,10 +53,10 @@ function pop-buf
               sleep "$interval"
               fish -c "echo \"sentinel#$id\" >> $fifo_path" &
             else
-              set --function finished True
+              set --function finished true
             end
           else if [ "$key" = "timeout#$id" ]
-            set --function timeout True
+            set --function timeout true
           end
         end
       end
@@ -78,6 +70,7 @@ function pop-buf
           and [ "$value" != "\$" ]
         end
       end
+
       while set --query FISH_FILO_BUFFER[1]
         set --local pop $FISH_FILO_BUFFER[-1]
         set --universal --erase FISH_FILO_BUFFER[-1]
@@ -93,10 +86,11 @@ function pop-buf
       end
 
       if set --query _flag_timeout
+        sleep "$interval"
         set --function _flag_timeout (math "$_flag_timeout - $interval")
-        [ "$_flag_timeout" -gt 0 ]; or set --function timeout True
+        [ "$_flag_timeout" -gt 0 ]; or set --function timeout true
       else
-        set --function timeout True
+        set --function timeout true
       end
     end
   end
