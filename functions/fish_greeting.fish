@@ -23,7 +23,7 @@ function fish_greeting
     "echo $TERM"
 
   set --function n (count $magazine_shorthands)
-  set --function is (seq $n)
+  set --function is (seq0 $n)
 
   for i in $is
     set --function magazine_flags[$i] \
@@ -81,7 +81,7 @@ function fish_greeting
   end
 
   set --function m (count $labels)
-  set --function js (seq $m)
+  set --function js (seq0 $m)
 
   for j in $js
     if set --query _flag_labels

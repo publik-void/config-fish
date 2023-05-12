@@ -7,6 +7,8 @@ set --universal --export EDITOR nvim
 set --universal --export PAGER less # Consider using neovim?
 set --universal --export MOSH_PREDICTION_DISPLAY always
 
+set --universal --export FISH_ASYNC_FIFO_PATH "$HOME/.config/fish/async-fifo"
+
 if status is-interactive
   set --universal --export FISH_NEW_GREETING_DELTA (math 15 x 60)
   set --universal --export CPCP_ENCRYPTION_KEY_DELTA (math 16 x 60 x 60)

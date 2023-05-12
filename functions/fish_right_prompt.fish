@@ -1,72 +1,23 @@
 function fish_right_prompt --description 'Write out the right prompt'
 
-    if not set -q __fish_git_prompt_show_informative_status
-        set -g __fish_git_prompt_show_informative_status 1
-    end
-    if not set -q __fish_git_prompt_hide_untrackedfiles
-        set -g __fish_git_prompt_hide_untrackedfiles 1
-    end
-
-    if not set -q __fish_git_prompt_color_branch
-        set -g __fish_git_prompt_color_branch magenta --bold
-    end
-    if not set -q __fish_git_prompt_showupstream
-        set -g __fish_git_prompt_showupstream "informative"
-    end
-    if not set -q __fish_git_prompt_char_upstream_ahead
-        set -g __fish_git_prompt_char_upstream_ahead "↑"
-    end
-    if not set -q __fish_git_prompt_char_upstream_behind
-        set -g __fish_git_prompt_char_upstream_behind "↓"
-    end
-    if not set -q __fish_git_prompt_char_upstream_prefix
-        set -g __fish_git_prompt_char_upstream_prefix ""
-    end
-
-    if not set -q __fish_git_prompt_char_stagedstate
-        set -g __fish_git_prompt_char_stagedstate "●"
-    end
-    if not set -q __fish_git_prompt_char_dirtystate
-        set -g __fish_git_prompt_char_dirtystate "✚"
-    end
-    if not set -q __fish_git_prompt_char_untrackedfiles
-        set -g __fish_git_prompt_char_untrackedfiles "…"
-    end
-    if not set -q __fish_git_prompt_char_conflictedstate
-        set -g __fish_git_prompt_char_conflictedstate "✖"
-    end
-    if not set -q __fish_git_prompt_char_cleanstate
-        set -g __fish_git_prompt_char_cleanstate "✔"
-    end
-
-    if not set -q __fish_git_prompt_color_dirtystate
-        set -g __fish_git_prompt_color_dirtystate blue
-    end
-    if not set -q __fish_git_prompt_color_stagedstate
-        set -g __fish_git_prompt_color_stagedstate yellow
-    end
-    if not set -q __fish_git_prompt_color_invalidstate
-        set -g __fish_git_prompt_color_invalidstate red
-    end
-    if not set -q __fish_git_prompt_color_untrackedfiles
-        set -g __fish_git_prompt_color_untrackedfiles $fish_color_normal
-    end
-    if not set -q __fish_git_prompt_color_cleanstate
-        set -g __fish_git_prompt_color_cleanstate green --bold
-    end
-
     if not set -q __fish_prompt_normal
         set -g __fish_prompt_normal (set_color normal)
     end
 
-    # Note: I had this previsouly set to switch to `$fish_color_cwd_root`,
-    # depending on user, but I already indicate the root user with the left
-    # prompt, so let's just keep the color consistent here.
-    set -l color_cwd $fish_color_cwd
+    set --function uuid (string pad --char "0" --width 10 (random 0 2147483647))
+    set --function id "$fish_pid-$uuid"
 
-    printf '%s ' (__fish_vcs_prompt)
+    fish -c "push-buf \"git-prompt#$id\" \"configured-git-prompt\"" &
+    fish -c "push-buf \"cwd-prompt#$id\" \"configured-cwd-prompt\"" &
 
-    set_color $color_cwd
-    printf (prompt_pwd)
+    set --function red_esc (set_color red)
+    set --function default \
+      (string join "" "($red_esc" "timeout$__fish_prompt_normal)")
+
+    pop-buf --timeout=1 --default="$default" \
+      "git-prompt#$id" "cwd-prompt#$id" | while read --line --local field
+      [ "$field" ]; and printf "%s " "$field"
+    end
+
     set_color normal
 end
