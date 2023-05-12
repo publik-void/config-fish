@@ -15,6 +15,14 @@ function pop-buf
 
   set --function interval "0.01"
 
+  # for older fish versions that don't have built-in booleans
+  if not type -q False
+    function False; return 1; end
+  end
+  if not type -q True
+    function True; return 0; end
+  end
+
   set --function finished False
   set --function timeout False
   set --function exit_status 0
