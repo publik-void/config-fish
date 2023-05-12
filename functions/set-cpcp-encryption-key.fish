@@ -33,7 +33,7 @@ function set-cpcp-encryption-key
 
       set --function n_bytes (math --scale=0 "ceil($_flag_random / 4) * 3")
       set --function rnd (cpcp --base64 rand $n_bytes)
-      set --function rnd (string shorten --max $_flag_random --char "" "$rnd")
+      set --function rnd (string sub --length $_flag_random "$rnd")
     else
       set --function rnd
     end
