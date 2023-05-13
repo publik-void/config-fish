@@ -1,4 +1,12 @@
 function fish_right_prompt --description 'Write out the right prompt'
+  # So apparently, `fish_right_prompt` does not necessarily receive any globally
+  # set variables from `fish_pompt` or `fish_mode_prompt`. Instead, `$status` is
+  # set to the correct value, but unfortunately only on some platforms or
+  # versions, it seems. Oh my god, these prompt functions are starting to annoy
+  # me a whole lot. Well, for now, let's just accept that `$status` may be
+  # incorrect on some platforms. It should hopefully be `0` in virtually all of
+  # these cases anyway, and the left prompt will still indicate a nonzero retuen
+  # value.
   set --function last_status $status
 
   if not set --query __fish_prompt_normal
