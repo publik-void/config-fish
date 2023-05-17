@@ -20,6 +20,15 @@ if status is-interactive
   set fish_cursor_insert line
   set fish_cursor_replace_one underscore
   set fish_vi_force_cursor # Note: Seems to be necessary, at least for iTerm2…
+
+  # TODO: Check the source code of `fish_update_completions` to check if it
+  # always writes to `$HOME/.local/share/fish/generated_completions/`. Then, add
+  # code here that checks the modification time of that folder if it exists or
+  # the files in it or something, and re-run a background
+  # `fish_update_completions` if the completion files haven't been updated in a
+  # while. And probably output a notice that this is happening, and perhaps
+  # disown the process. Maybe ensure that the modification time is up to date by
+  # doing a `touch`.
 end
 
 # Make sure `$HOME/bin` is on the `PATH`.
