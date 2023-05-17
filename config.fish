@@ -29,6 +29,8 @@ if status is-interactive
   # while. And probably output a notice that this is happening, and perhaps
   # disown the process. Maybe ensure that the modification time is up to date by
   # doing a `touch`.
+  # Note: Checking modification time should be easy with fish's `path mtime
+  # --relative`
 end
 
 # Make sure `$HOME/bin` is on the `PATH`.
