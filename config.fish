@@ -3,11 +3,9 @@ case lasse-mbp-0 lasse-mba-0
   export LANG=en_US
 end
 
-set --universal --export EDITOR nvim
-set --universal --export PAGER less # Consider using neovim?
-set --universal --export MOSH_PREDICTION_DISPLAY always
-
-set --universal --export FISH_ASYNC_FIFO_PATH "$HOME/.config/fish/async-fifo"
+type -q nvim; and set --universal --export EDITOR nvim
+type -q less; and set --universal --export PAGER less # Consider using neovim?
+type -q mosh; and set --universal --export MOSH_PREDICTION_DISPLAY always
 
 if status is-interactive
   set --universal --export FISH_NEW_GREETING_DELTA (math 15 x 60)
@@ -34,9 +32,7 @@ if status is-interactive
 end
 
 # Make sure `$HOME/bin` is on the `PATH`.
-# Note: We could check if it exists first, but I think it's nicer to just have
-# it in there always?
-set PATH $HOME/bin $PATH
+fish_add_path --path $HOME/bin
 
 # iTerm2 integration
 test -e {$HOME}/.iterm2_shell_integration.fish ;\
