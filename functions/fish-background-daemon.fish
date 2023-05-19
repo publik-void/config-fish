@@ -56,8 +56,8 @@ Subcommands:
   set --function base_directory_dirnames_list "/dev/shm" "/run/shm" "/tmp"
   set --function base_directory_basename_prefix "fish-background-daemons"
   set --function common_buffer_name "common"
-  set --function interval "15"
-  set --function delta "10" # Must be smaller than `interval`
+  set --function interval "600"
+  set --function delta "300" # Must be smaller than `interval`
 
   # Get subcommand
   if not set --query argv[1]
@@ -106,8 +106,11 @@ Subcommands:
       set --global FISH_BACKGROUND_DAEMON_LAST_UPDATE_TIME (date +%s)
       return
     else if [ "$daemon_subcommand" = "run" ]
-      argparse --min-args 2 --max-args 2 -- $argv
-      or return $status
+      if [ (count $argv) != 2 ]
+        echo "fish-background-daemon daemon run:" \
+          "expected exactly 2 arguments" >&2
+        return 1
+      end
 
       set --local directory "$argv[1]"
       set --local common_file "$argv[2]"
@@ -154,8 +157,11 @@ Subcommands:
       return 1
 
     else if [ "$daemon_subcommand" = "mgr" ]
-      argparse --min-args 2 --max-args 2 -- $argv
-      or return $status
+      if [ (count $argv) != 2 ]
+        echo "fish-background-daemon daemon mgr:" \
+          "expected exactly 2 arguments" >&2
+        return 1
+      end
 
       set --local directory "$argv[1]"
       set --local common_file "$argv[2]"
@@ -277,8 +283,11 @@ Subcommands:
     end
 
   else if [ "$subcommand" = "status" ]
-    argparse --max-args=0 -- $argv
-    or return $status
+    if [ (count $argv) != 0 ]
+      echo "fish-background-daemon status:" \
+        "expected exactly 0 arguments" >&2
+      return 1
+    end
     test -d "$directory/"; and ls "$directory/" | cat
     not set --global --query FISH_DAEMON_FILE; return $status
 
