@@ -17,7 +17,7 @@ function fish_right_prompt --description 'Write out the right prompt'
   # its individual parts would be computed in parallel asynchronously with a
   # timeout. I first tried it with a named pipe buffer, later switched to fish
   # universal variables. I encapsulated this in some extra fish functions
-  # (push-buf and pop-buf) In the end, both have their issues. named pipes
+  # (push-buf and pop-buf). In the end, both have their issues. Named pipes
   # mainly having some latency and thus making the prompt very un-snappy, and a
   # single central stack buffer built on a universal variable not being able to
   # deal with data races well (if two background jobs try to append something to
@@ -34,7 +34,26 @@ function fish_right_prompt --description 'Write out the right prompt'
   # in the foreground, as that is faster than spawning an extra background job.
   # In fact, this is unfortunately why this prompt won't be really snappy ever –
   # because it always spawns background jobs which takes some time.
+  #
   # TODO: Can anything still be done about this?
+  # Maybe, because it's not the spawning of background jobs itself that takes
+  # time, and neither named pipe communication by the way, but the starting of
+  # new fish processes, it seems. So anything running a fish script or using
+  # `fish -c '…'` will result in some perceptible latency. Using `fish --private
+  # --no-config -c '…'` helps a little bit, but not much, and disallows the usage
+  # of universal variables for inter-process communication. An issue with fish
+  # that has not received much work for a long time is that it doesn't support
+  # background subshells or background functions.
+  #
+  # I guess one approach would be
+  # to launch a bunch of background fish shells when starting fish and then send
+  # commands to those for concurrency, ameliorating the need to wait for the
+  # start of a new fish process at the time it is needed, but man would that
+  # feel hacky. It'd probably also result in a bunch of new issues.
+  #
+  # Another way would be to use compiled binaries that handle the prompt string
+  # creation as well as the inter-process communication and rely on those, at
+  # least if they're available. Seems like quite the project, too, however.
 
   # Initialize buffers for the capture of background jobs' output
   set --universal fish_git_prompt_buffer
