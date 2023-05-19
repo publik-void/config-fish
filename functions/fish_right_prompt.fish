@@ -54,6 +54,9 @@ function fish_right_prompt --description 'Write out the right prompt'
   # Another way would be to use compiled binaries that handle the prompt string
   # creation as well as the inter-process communication and rely on those, at
   # least if they're available. Seems like quite the project, too, however.
+  #
+  # Using `timeout` instead of concurrent jobs will require a command (and not
+  # a fish function) to be run as well, so that's of no help.
 
   # Initialize buffers for the capture of background jobs' output
   set --universal fish_git_prompt_buffer
