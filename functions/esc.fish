@@ -56,19 +56,23 @@ function esc --description "helper function for escaping strings"
       end
     end
   else
-    set --query --function _flag_prefix
-    and printf "$_flag_prefix"
+    set --local output
     if set --query --function _flag_join
-      string escape --no-quote -- $args | string join -- "$_flag_join"
+      set output \
+        (string escape --no-quote -- $args | string join -- "$_flag_join")
     else
       if set --query --function _flag_prefix
         set --local separator \n
-        string escape --no-quote -- $args | \
-          string join -- "$separator$_flag_prefix"
+        set output (string escape --no-quote -- $args | \
+            string join -- "$separator$_flag_prefix")
       else
-        string escape --no-quote -- $args
+        set output (string escape --no-quote -- $args)
       end
     end
+    set --query --function _flag_prefix
+    and set output "$_flag_prefix$output"
+    # Re-printing because sometimes it's important to not flush prematurely
+    printf "%s\n" "$output"
   end
 
   return $exit_code

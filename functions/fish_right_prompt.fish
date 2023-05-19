@@ -57,14 +57,23 @@ function fish_right_prompt --description 'Write out the right prompt'
   #
   # Using `timeout` instead of concurrent jobs will require a command (and not
   # a fish function) to be run as well, so that's of no help.
+  #
+  # Sooo… I coded `fish-background-daemon` and it seems to improve things a bit.
+  # It seems it would be even faster if we wouldn't use universal variables, but
+  # named pipes here in this function.
+
+  set --function cwd (pwd)
 
   # Initialize buffers for the capture of background jobs' output
   set --universal fish_git_prompt_buffer
   # TODO: Integrate some of the other fields here (conda, juliaup, …)
 
   # Run background jobs with escaped output being captured in the buffers
-  fish -c "set --universal fish_git_prompt_buffer \
-    (configured-git-prompt | esc --prefix --join)" &
+  #fish -c "set --universal fish_git_prompt_buffer \
+  #  (configured-git-prompt | esc --prefix --join)" &
+  fish-background-daemon eval "cd $cwd; \
+    set --universal fish_git_prompt_buffer \
+    (configured-git-prompt | esc --prefix --join)"
 
   # Meanwhile, run foreground jobs and capture in local buffers
   set --function cwd_prompt (configured-cwd-prompt | esc --prefix --join)
