@@ -1,8 +1,15 @@
 function get-data-directory
-  # TODO: Add fish REPL completions for this
+  # TODO: I feel like there's a bunch of stuff that's a bit messy about these
+  # `get-data-directory` type functions. I'm not gonna list everything here
+  # right now, but suffice it to say that I think these could use a makeover
+  # where a bunch of stuff is made a bit more sensible and modular and the
+  # functions work nicely together with the completions and so on. However,
+  # since these functions will only save me a couple seconds here and there in
+  # my workflow, it's probably a bad idea to spend more time on improving them.
+  # I guess they more or less do their job for now.
 
   # Parse args
-  argparse --max-args=1 "k/kind=" "n/name=" -- $argv
+  argparse --max-args=1 "k/kind=" "n/name=" "d/data-directory=" -- $argv
 
   # Set default `argv[1]`
   if not set --function --query argv[1]
@@ -13,7 +20,9 @@ function get-data-directory
   set --function kinds "work" "repo"
 
   # Find data directory
-  if set --query LASSE_DATA_DIRECTORY
+  if set --query _flag_data_directory
+    set --function data_directory "$_flag_data_directory"
+  else if set --query LASSE_DATA_DIRECTORY
     if not test -d "$LASSE_DATA_DIRECTORY"
       echo "get-data-directory: `LASSE_DATA_DIRECTORY` set," \
         "but is not a directory" >&2

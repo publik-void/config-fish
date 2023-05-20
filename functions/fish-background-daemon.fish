@@ -50,14 +50,20 @@ Subcommands:
     `delta` number of seconds.
 
   daemon update-time
-    Tell a daemon to update its internal time stamp."
+    Tell a daemon to update its internal time stamp.
+
+Environment variables:
+  FISH_BACKGROUND_DAEMON_MGR_INTERVAL
+  FISH_BACKGROUND_DAEMON_MGR_DELTA
+    Can be set to override the default time to live and checking period for
+    daemons."
 
   # Constant parameters
   set --function base_directory_dirnames_list "/dev/shm" "/run/shm" "/tmp"
   set --function base_directory_basename_prefix "fish-background-daemons"
   set --function common_buffer_name "common"
-  set --function interval "600"
-  set --function delta "300" # Must be smaller than `interval`
+  set --function mgr_interval "600"
+  set --function mgr_delta "300" # Must be smaller than `mgr_interval`
 
   # Get subcommand
   if not set --query argv[1]
@@ -163,16 +169,26 @@ Subcommands:
         return 1
       end
 
+      set --query FISH_BACKGROUND_DAEMON_MGR_DELTA
+      and set mgr_delta "$FISH_BACKGROUND_DAEMON_MGR_DELTA"
+      set --query FISH_BACKGROUND_DAEMON_MGR_INTERVAL
+      and set mgr_interval "$FISH_BACKGROUND_DAEMON_MGR_INTERVAL"
+      if [ "$mgr_delta" -ge "$mgr_interval" ]
+        echo "fish-background-daemon daemon mgr:" \
+          "delta must be smaller than interval" >& 2
+        return 1
+      end
+
       set --local directory "$argv[1]"
       set --local common_file "$argv[2]"
 
       while test -p "$common_file"
-        sleep "$interval"
+        sleep "$mgr_interval"
         set --local daemon_file_basenames (ls "$directory/")
         set --local n_daemons (count $daemon_file_basenames)
         if [ "$n_daemons" -gt 0 ]
           for daemon_file_basename in "$daemon_file_basenames"
-            echo "fish-background-daemon daemon exit --delta=$delta" | \
+            echo "fish-background-daemon daemon exit --mgr_delta=$mgr_delta" | \
               tee "$common_file" > /dev/null &
           end
         else
