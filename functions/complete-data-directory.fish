@@ -59,19 +59,16 @@ function complete-data-directory
 
   set --local prefix
   if set --query tokens[1]
-    echo mark-0 >&2
     # Complete from arg
     #set prefix "$directory"
     set prefix (path basename -- "$directory")
   else if set --query name[1]
-    echo mark-1 >&2
     # Complete from name
     set --local full_kind "work-"
     string match --regex -- "^r.*" "$kind"; and set full_kind "repo-"
     #set prefix "$data_directory/$full_kind$name"
     set prefix "$data_directory/$full_kind"
   else if set --query kind[1]
-    echo mark-2 >&2
     # Complete from kind
     #set prefix "$data_directory/$kind"
     set prefix "$data_directory/"
