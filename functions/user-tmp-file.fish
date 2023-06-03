@@ -2,9 +2,13 @@ function user-tmp-file --description \
   "An interface to load and store data in temporary files. The motivation being
   that fish universal variables functionality may not be around in the future."
 
+  # TODO: Extend this to optionally use named pipes
+  # Ideally in a way where there's a guarantee that a named pipe contains one
+  # input iff it exists … should be doable, right?
   set --local usage_message "Usage:
   user-tmp-file dirname
   user-tmp-file list    [<name> ...]
+  user-tmp-file query   [<name> ...]
   user-tmp-file read    <name>
   user-tmp-file write   <name> [<contents> ...]
   user-tmp-file append  <name> [<contents> ...]
@@ -58,6 +62,17 @@ function user-tmp-file --description \
       end
       for name in $names
         test -f "$dirname/$name"; and echo -- "$name"
+      end
+      return 0
+
+    else if begin
+        [ "$argv[1]" = "query" ]
+      end
+      set --local dirname (user-tmp-file dirname); or return $status
+      for arg in $argv[2..-1]
+        if not test -f "$dirname/$arg"
+          return 127
+        end
       end
       return 0
 

@@ -65,22 +65,35 @@ function fish_right_prompt --description 'Write out the right prompt'
   # (TODO)
 
   set --function cwd (pwd)
+  set --function ttl 3
+  set --function id $fish_pid
 
-  # Initialize buffers for the capture of background jobs' output
-  set --universal fish_git_prompt_buffer
   # TODO: Integrate some of the other fields here (conda, juliaup, …)
+  set --function background_fieldnames \
+    "fish_git_prompt_buffer"
+  set --function background_commands \
+    "configured-git-prompt"
 
-  # Run background jobs with escaped output being captured in the buffers
-  #fish -c "set --universal fish_git_prompt_buffer \
-  #  (configured-git-prompt | esc --prefix --join)" &
-  fish-background-daemon eval "cd $cwd; \
-    set --universal fish_git_prompt_buffer \
-    (configured-git-prompt | esc --prefix --join)"
+  set --function background_fieldnames_with_id
+  for name in $background_fieldnames
+    set --append background_fieldnames_with_id "$name"_"$id"
+  end
+
+  # Make sure files to capture background job's output don't exist
+  user-tmp-file rm $background_fieldnames_with_id
+
+  # Run background jobs with escaped output being captured in the files
+  # TODO: extra escaping may not be necessary since user-tmp-file does it too
+  for i in (seq0 (count background_fieldnames))
+    fish-background-daemon eval "cd $cwd; \
+      user-tmp-file write \"$background_fieldnames_with_id[$i]\" \
+      ($background_commands[$i])"
+  end
 
   # Meanwhile, run foreground jobs and capture in local buffers
-  set --function cwd_prompt (configured-cwd-prompt | esc --prefix --join)
+  set --function cwd_prompt (configured-cwd-prompt)
   set --function status_prompt \
-    (configured-status-prompt --value=$last_status | esc --prefix --join)
+    (configured-status-prompt --value=$last_status)
 
   # And do other setup
   set --function timeout 1
@@ -89,28 +102,41 @@ function fish_right_prompt --description 'Write out the right prompt'
   set --function red_esc (set_color red)
   set --function normal_esc $__fish_prompt_normal
 
-  # Wait for background jobs to finish or timeout
-  while begin true
-      # Check for captured output of background jobs
-      and not set --query fish_git_prompt_buffer[1]
+  # Set empty variables for fields
+  for name in $background_fieldnames
+    set --function "$name"
+  end
 
-      # Check for timeout last
-      and [ $timeout -gt 0 ]
+  # Wait for background jobs to finish or timeout
+  while true
+    set --local any_unfinished false
+    for name in $background_fieldnames
+      if begin
+          not set --query "$name"[1]
+          and not user-tmp-file query "$name"_"$id"
+        end
+        set any_unfinished true
+      else
+        set "$name" (user-tmp-file read "$name"_"$id")
+        user-tmp-file rm "$name"_"$id"
+      end
     end
+
+    begin; not $any_unfinished; or [ "$timeout" -le 0 ]; end; and break
+
     set --function timeout (math "$timeout - $interval")
-    sleep $interval
+    sleep "$interval"
   end
 
   # If desired, create default values for background jobs that took too long
-  set --query fish_git_prompt_buffer[1]
-  or set --function fish_git_prompt_buffer \
-    (esc --prefix --join "(git:$red_esc timeout$normal_esc)")
+  set --query "fish_git_prompt_buffer"[1]
+  or set --function "fish_git_prompt_buffer" \
+    "(git:$red_esc timeout$normal_esc)"
 
   # Output non-empty fields
   set --function separator
-  for field_esc in "$status_prompt" "$fish_git_prompt_buffer" "$cwd_prompt"
+  for field in "$status_prompt" "$fish_git_prompt_buffer" "$cwd_prompt"
     if begin
-        set --function field (esc --unescape --prefix --join "$field_esc")
         and [ "$field" != "" ]
       end
       printf "$separator%s" "$field"
