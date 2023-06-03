@@ -79,11 +79,15 @@ function fish_right_prompt --description 'Write out the right prompt'
     set --append background_fieldnames_with_id "$name"_"$id"
   end
 
+  # TODO: Update `user-tmp-file` to work with named pipes, because it should be
+  # faster on non-RAM filesystems and it may be safer if implemented correctly
+  # because right now, a file can be read without its contents being written
+  # fully.
+
   # Make sure files to capture background job's output don't exist
   user-tmp-file rm $background_fieldnames_with_id
 
   # Run background jobs with escaped output being captured in the files
-  # TODO: extra escaping may not be necessary since user-tmp-file does it too
   for i in (seq0 (count background_fieldnames))
     fish-background-daemon eval "cd $cwd; \
       user-tmp-file write \"$background_fieldnames_with_id[$i]\" \
