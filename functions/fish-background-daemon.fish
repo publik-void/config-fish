@@ -228,7 +228,7 @@ Environment variables:
       end
     end
     if set --function --query base_directory_dirname[1]
-      set --universal FISH_BACKGROUND_DAEMON_BASE_DIRECTORY_DIRNAME \
+      set --global --export FISH_BACKGROUND_DAEMON_BASE_DIRECTORY_DIRNAME \
         "$base_directory_dirname"
     else
       echo "fish-background-daemon:" \

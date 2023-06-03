@@ -10,21 +10,24 @@ function set-cpcp-encryption-key
   else if [ (count $argv) = 1 ]; and type -q cpcp
     set --function key "$argv[1]"
   else
-    set --universal --erase CPCP_ENCRYPTION_KEY_MTIME
-    set --universal --erase CPCP_ENCRYPTION_KEY
+    user-tmp-file rm "cpcp-encryption-key-mtime"
+    user-tmp-file rm "cpcp-encryption-key"
     type -q cpcp
     return $status
   end
 
   set --function time (date "+%s")
+  set --function cpcp_encryption_key_mtime \
+    (user-tmp-file read "cpcp-encryption-key-mtime" 2> /dev/null)
+  or set --function --erase cpcp_encryption_key_mtime
   if begin not set --query _flag_delta
-      or not set --query CPCP_ENCRYPTION_KEY_MTIME
-      or [ (math "$time - $CPCP_ENCRYPTION_KEY_MTIME") -gt "$_flag_delta" ]
+      or not set --query cpcp_encryption_key_mtime
+      or [ (math "$time - $cpcp_encryption_key_mtime") -gt "$_flag_delta" ]
     end
 
-    if set --query CPCP_ENCRYPTION_KEY
-      set --function previous_key $CPCP_ENCRYPTION_KEY
-    end
+    set --function previous_key \
+      (user-tmp-file read "cpcp-encryption-key" 2> /dev/null)
+    or set --function --erase previous_key
 
     if set --query _flag_random
       if not set --query _flag_random[1]
@@ -38,8 +41,8 @@ function set-cpcp-encryption-key
       set --function rnd
     end
 
-    set --universal --export CPCP_ENCRYPTION_KEY_MTIME "$time"
-    set --universal --export CPCP_ENCRYPTION_KEY "$key$rnd"
+    user-tmp-file write "cpcp-encryption-key-mtime" "$time"
+    user-tmp-file write "cpcp-encryption-key" "$key$rnd"
 
     if not set --query _flag_quiet
       echo -n "New CPCP encryption key set."

@@ -35,7 +35,7 @@ function fish_right_prompt --description 'Write out the right prompt'
   # In fact, this is unfortunately why this prompt won't be really snappy ever –
   # because it always spawns background jobs which takes some time.
   #
-  # TODO: Can anything still be done about this?
+  # Can anything be done about this?
   # Maybe, because it's not the spawning of background jobs itself that takes
   # time, and neither named pipe communication by the way, but the starting of
   # new fish processes, it seems. So anything running a fish script or using
@@ -61,6 +61,8 @@ function fish_right_prompt --description 'Write out the right prompt'
   # Sooo… I coded `fish-background-daemon` and it seems to improve things a bit.
   # It seems it would be even faster if we wouldn't use universal variables, but
   # named pipes here in this function.
+  # To add to this, universal variables may get deprecated in the future…
+  # (TODO)
 
   set --function cwd (pwd)
 

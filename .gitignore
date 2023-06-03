@@ -2,4 +2,5 @@
 !/.gitignore
 !/config.fish
 !/functions/
+!/completions/
 !/latex-docker

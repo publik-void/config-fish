@@ -17,9 +17,12 @@ function fish_mode_prompt --description "Display the `vi` mode for the prompt"
         set --global --erase new_greeting_delta_exceeded
       end
 
+      set --function cpcp_encryption_key_mtime \
+        (user-tmp-file read "cpcp-encryption-key-mtime" 2> /dev/null)
+      or set --function --erase cpcp_encryption_key_mtime
       if begin set --query CPCP_ENCRYPTION_KEY_DELTA
-          and begin not set --query CPCP_ENCRYPTION_KEY_MTIME
-            or [ (math "$(date "+%s") - $CPCP_ENCRYPTION_KEY_MTIME") -gt \
+          and begin not set --query cpcp_encryption_key_mtime
+            or [ (math "$(date "+%s") - $cpcp_encryption_key_mtime") -gt \
               "$CPCP_ENCRYPTION_KEY_DELTA" ]
           end
         end
