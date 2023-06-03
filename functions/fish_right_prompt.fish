@@ -118,6 +118,7 @@ function fish_right_prompt --description 'Write out the right prompt'
         set any_unfinished true
       else
         set "$name" (user-tmp-file read "$name"_"$id")
+        set --query "$name"[1]; or set "$name" ""
         user-tmp-file rm "$name"_"$id"
       end
     end
