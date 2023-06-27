@@ -58,13 +58,17 @@ function fish_mode_prompt --description "Display the `vi` mode for the prompt"
     case default
       set prompt_char 'n'
     case insert
-      switch $USER
-        case root toor
-          set prompt_char '#'
-        case lasse schloer pi tweek
-          set prompt_char '>'
-        case '*'
-          set prompt_char '$'
+      if [ (id -u) = 0 ]
+        set prompt_char '#'
+      else
+        switch $USER
+          case root toor
+            set prompt_char '!'
+          case lasse schloer pi tweek
+            set prompt_char '>'
+          case '*'
+            set prompt_char '$'
+        end
       end
     case replace_one
       set prompt_char 'r'
