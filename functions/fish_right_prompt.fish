@@ -5,7 +5,7 @@ function fish_right_prompt --description 'Write out the right prompt'
   # versions, it seems. Oh my god, these prompt functions are starting to annoy
   # me a whole lot. Well, for now, let's just accept that `$status` may be
   # incorrect on some platforms. It should hopefully be `0` in virtually all of
-  # these cases anyway, and the left prompt will still indicate a nonzero retuen
+  # these cases anyway, and the left prompt will still indicate a nonzero return
   # value.
   set --function last_status $status
 
@@ -21,18 +21,18 @@ function fish_right_prompt --description 'Write out the right prompt'
   # mainly having some latency and thus making the prompt very un-snappy, and a
   # single central stack buffer built on a universal variable not being able to
   # deal with data races well (if two background jobs try to append something to
-  # the same universal variable at the same time, it usually fails).
-  # One thing to keep in mind here is that (at least as of the time of writing
-  # this) fish has no functionality of running a `function` in the background.
+  # the same universal variable at the same time, it usually fails). One thing
+  # to keep in mind here is that (at least as of the time of writing this) fish
+  # has no functionality of running a `function` in the background.
   #
   # I think what probably makes more sense is to just have a separate universal
   # variable for every part of the right prompt that is supposed to run in a
   # separate background job.
   # Also, it only makes sense to run those jobs in the background that actually
   # have a possibility of taking their time. Anything fast and (mostly)
-  # fail-safe like printing the working directory should probably be done
-  # in the foreground, as that is faster than spawning an extra background job.
-  # In fact, this is unfortunately why this prompt won't be really snappy ever –
+  # fail-safe like printing the working directory should probably be done in the
+  # foreground, as that is faster than spawning an extra background job. In
+  # fact, this is unfortunately why this prompt won't be really snappy ever –
   # because it always spawns background jobs which takes some time.
   #
   # Can anything be done about this?
@@ -40,40 +40,44 @@ function fish_right_prompt --description 'Write out the right prompt'
   # time, and neither named pipe communication by the way, but the starting of
   # new fish processes, it seems. So anything running a fish script or using
   # `fish -c '…'` will result in some perceptible latency. Using `fish --private
-  # --no-config -c '…'` helps a little bit, but not much, and disallows the usage
-  # of universal variables for inter-process communication. An issue with fish
-  # that has not received much work for a long time is that it doesn't support
-  # background subshells or background functions.
+  # --no-config -c '…'` helps a little bit, but not much, and disallows the
+  # usage of universal variables for inter-process communication. An issue with
+  # fish that has not received much work for a long time is that it doesn't
+  # support background subshells or background functions.
   #
-  # I guess one approach would be
-  # to launch a bunch of background fish shells when starting fish and then send
-  # commands to those for concurrency, ameliorating the need to wait for the
-  # start of a new fish process at the time it is needed, but man would that
-  # feel hacky. It'd probably also result in a bunch of new issues.
+  # I guess one approach would be to launch a bunch of background fish shells
+  # when starting fish and then send commands to those for concurrency,
+  # ameliorating the need to wait for the start of a new fish process at the
+  # time it is needed, but man would that feel hacky. It'd probably also result
+  # in a bunch of new issues.
   #
   # Another way would be to use compiled binaries that handle the prompt string
   # creation as well as the inter-process communication and rely on those, at
   # least if they're available. Seems like quite the project, too, however.
   #
-  # Using `timeout` instead of concurrent jobs will require a command (and not
-  # a fish function) to be run as well, so that's of no help.
+  # Using `timeout` instead of concurrent jobs will require a command (and not a
+  # fish function) to be run as well, so that's of no help.
   #
   # Sooo… I coded `fish-background-daemon` and it seems to improve things a bit.
   # It seems it would be even faster if we wouldn't use universal variables, but
   # named pipes here in this function.
   # To add to this, universal variables may get deprecated in the future…
-  # (TODO)
+  #
+  # Well, so I coded `user-tmp-file` to solve that problem…
 
+  # Setup some needed values
   set --function cwd (pwd)
-  set --function ttl 3
   set --function id $fish_pid
 
+  # Commands to evaluate in the background and the variable names to store the
+  # results in
   # TODO: Integrate some of the other fields here (conda, juliaup, …)
-  set --function background_fieldnames \
-    "fish_git_prompt_buffer"
   set --function background_commands \
     "configured-git-prompt"
+  set --function background_fieldnames \
+    "fish_git_prompt_buffer"
 
+  # For `user-tmp-file`, make file name unique to this shell
   set --function background_fieldnames_with_id
   for name in $background_fieldnames
     set --append background_fieldnames_with_id "$name"_"$id"
@@ -87,11 +91,25 @@ function fish_right_prompt --description 'Write out the right prompt'
   # Make sure files to capture background job's output don't exist
   user-tmp-file rm $background_fieldnames_with_id
 
-  # Run background jobs with escaped output being captured in the files
-  for i in (seq0 (count background_fieldnames))
-    fish-background-daemon eval "cd $cwd; \
-      user-tmp-file write \"$background_fieldnames_with_id[$i]\" \
-      ($background_commands[$i])"
+  # Let's require setting this to enable the background processing. The idea
+  # being that I may not want to use it on all systems. Especially as long as it
+  # is still buggy and may create some dangling named pipe redirections, which
+  # may be bad news on high uptime, low resource systems like Raspberry Pis.
+  if set --query FISH_RIGHT_PROMPT_USE_BACKGROUND
+    # Run background jobs with escaped output being captured in the files
+    for i in (seq0 (count background_fieldnames))
+      fish-background-daemon eval "cd $cwd; \
+        user-tmp-file write \"$background_fieldnames_with_id[$i]\" \
+        ($background_commands[$i])"
+    end
+  else
+    # Run the jobs intended for background processing in the foreground
+    for i in (seq0 (count background_fieldnames))
+      cd $cwd
+      user-tmp-file write "$background_fieldnames_with_id[$i]" \
+        ($background_commands[$i])
+    end
+    cd $cwd
   end
 
   # Meanwhile, run foreground jobs and capture in local buffers
@@ -149,5 +167,6 @@ function fish_right_prompt --description 'Write out the right prompt'
     end
   end
 
+  # Reset color at the end of the right prompt
   set_color normal
 end
