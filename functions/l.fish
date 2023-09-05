@@ -13,7 +13,7 @@ function l --wraps=ls
         set --append -- opts "$arg"
       end
     else
-      set --append -- args "$arg"
+      set --append -- args (path normalize -- "$arg")
     end
   end
   if [ (count $args) = 1 ]
