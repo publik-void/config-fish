@@ -13,7 +13,7 @@ function l --wraps=ls
         set --append -- opts "$arg"
       end
     else
-      set --append -- args (path normalize -- "$arg")
+      set --append -- args "$arg"
     end
   end
   if [ (count $args) = 1 ]
@@ -21,6 +21,7 @@ function l --wraps=ls
       set --prepend -- opts -d
     end
   end
-  ls $opts -- $args | string match --regex --invert -- "^total .*[^:]\$"
+  ls $opts -- $args | \
+    string match --regex --invert -- "^total .*[^:]\$"
 end
 
