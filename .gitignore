@@ -1,6 +1,6 @@
 /*
 !/.gitignore
-!/config.fish
+!/conf.d/
 !/functions/
 !/completions/
 !/latex-docker
