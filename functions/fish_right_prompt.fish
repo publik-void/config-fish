@@ -114,6 +114,7 @@ function fish_right_prompt --description 'Write out the right prompt'
 
   # Meanwhile, run foreground jobs and capture in local buffers
   set --function cwd_prompt (configured-cwd-prompt)
+  set --function guix_prompt (configured-guix-prompt)
   set --function status_prompt \
     (configured-status-prompt --value=$last_status)
 
@@ -154,11 +155,12 @@ function fish_right_prompt --description 'Write out the right prompt'
   # If desired, create default values for background jobs that took too long
   set --query "fish_git_prompt_buffer"[1]
   or set --function "fish_git_prompt_buffer" \
-    "(git:$red_esc timeout$normal_esc)"
+    "git:$red_esc timeout$normal_esc"
 
   # Output non-empty fields
   set --function separator
-  for field in "$status_prompt" "$fish_git_prompt_buffer" "$cwd_prompt"
+  for field in "$status_prompt" "$guix_prompt" "$fish_git_prompt_buffer" \
+      "$cwd_prompt"
     if begin
         and [ "$field" != "" ]
       end

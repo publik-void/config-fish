@@ -7,8 +7,8 @@ function configured-status-prompt
     if not set --query __fish_prompt_normal
         set --global __fish_prompt_normal (set_color normal)
     end
-    set --function red_esc (set_color red)
-    string join "" "($_flag_value$red_esc" "↵$__fish_prompt_normal)"
+    set red_esc (set_color red)
+    string join "" "$_flag_value$red_esc" "↵$__fish_prompt_normal"
   end
 end
 
