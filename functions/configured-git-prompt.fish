@@ -54,6 +54,6 @@ function configured-git-prompt --wraps fish_git_prompt
       set -g __fish_git_prompt_color_cleanstate green --bold
   end
 
-  string sub --start 2 --end -2 -- (string trim -- (fish_git_prompt $argv))
+  string sub --start 2 --end -1 -- (string trim -- (fish_git_prompt $argv))
 end
 
