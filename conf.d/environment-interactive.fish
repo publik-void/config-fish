@@ -1,13 +1,19 @@
 if status is-interactive
-  set --global --export FISH_NEW_GREETING_DELTA (math 15 x 60)
-  set --global --export CPCP_ENCRYPTION_KEY_DELTA (math 16 x 60 x 60)
+  set --global FISH_NEW_GREETING_DELTA (math 15 x 60)
+  set --global CPCP_ENCRYPTION_KEY_DELTA (math 16 x 60 x 60)
 
   # NOTE: The `hostname` variable is available since fish version 3.0.0
+  switch "$hostname"
+  case lasse-raspberrypi-1
+    # (keep the prompt simple for better performance on these hosts)
+  case "*"
+    set --global FISH_PROMPT_FULL_FEATURED
+  end
   switch "$hostname"
   case lasse-raspberrypi-0 lasse-raspberrypi-1
     # (don't use background processing in `fish_right_prompt` on these hosts)
   case "*"
-    set --global --export FISH_RIGHT_PROMPT_USE_BACKGROUND
+    set --global FISH_RIGHT_PROMPT_USE_BACKGROUND
   end
 
   type -q mosh; and set --global --export MOSH_PREDICTION_DISPLAY always

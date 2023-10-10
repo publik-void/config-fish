@@ -72,51 +72,60 @@ function fish_right_prompt --description 'Write out the right prompt'
   # Commands to evaluate in the background and the variable names to store the
   # results in
   # TODO: Integrate some of the other fields here (conda, juliaup, …)
-  set --function background_commands \
-    "configured-git-prompt"
-  set --function background_fieldnames \
-    "fish_git_prompt_buffer"
+  set --function background_commands # None, currently
+  set --function background_fieldnames # None, currently
 
-  # For `user-tmp-file`, make file name unique to this shell
-  set --function background_fieldnames_with_id
-  for name in $background_fieldnames
-    set --append background_fieldnames_with_id "$name"_"$id"
+  # More fields in "full featured" mode
+  if set --query FISH_PROMPT_FULL_FEATURED
+    set --append background_commands \
+      "configured-git-prompt"
+    set --append background_fieldnames \
+      "fish_git_prompt_buffer"
   end
-
-  # TODO: Update `user-tmp-file` to work with named pipes, because it should be
-  # faster on non-RAM filesystems and it may be safer if implemented correctly
-  # because right now, a file can be read without its contents being written
-  # fully.
-
-  # Make sure files to capture background job's output don't exist
-  user-tmp-file rm $background_fieldnames_with_id
 
   # Let's require setting this to enable the background processing. The idea
   # being that I may not want to use it on all systems. Especially as long as it
   # is still buggy and may create some dangling named pipe redirections, which
   # may be bad news on high uptime, low resource systems like Raspberry Pis.
   if set --query FISH_RIGHT_PROMPT_USE_BACKGROUND
+    # For `user-tmp-file`, make file name unique to this shell
+    set --function background_fieldnames_with_id
+    for name in $background_fieldnames
+      set --append background_fieldnames_with_id "$name"_"$id"
+    end
+
+    # TODO: Update `user-tmp-file` to work with named pipes, because it should be
+    # faster on non-RAM filesystems and it may be safer if implemented correctly
+    # because right now, a file can be read without its contents being written
+    # fully.
+
+    # Make sure files to capture background job's output don't exist
+    user-tmp-file rm $background_fieldnames_with_id
+
     # Run background jobs with escaped output being captured in the files
-    for i in (seq0 (count background_fieldnames))
+    for i in (seq0 (count $background_fieldnames))
       fish-background-daemon eval "cd $cwd; \
         user-tmp-file write \"$background_fieldnames_with_id[$i]\" \
         ($background_commands[$i])"
     end
   else
     # Run the jobs intended for background processing in the foreground
-    for i in (seq0 (count background_fieldnames))
+    for i in (seq0 (count $background_fieldnames))
       cd $cwd
-      user-tmp-file write "$background_fieldnames_with_id[$i]" \
-        ($background_commands[$i])
+      set --function "$background_fieldnames[$i]" ($background_commands[$i])
     end
     cd $cwd
   end
 
   # Meanwhile, run foreground jobs and capture in local buffers
   set --function cwd_prompt (configured-cwd-prompt)
-  set --function guix_prompt (configured-guix-prompt)
   set --function status_prompt \
     (configured-status-prompt --value=$last_status)
+
+  # More fields in "full featured" mode
+  if set --query FISH_PROMPT_FULL_FEATURED
+    set --function guix_prompt (configured-guix-prompt)
+  end
 
   # And do other setup
   set --function timeout 1
@@ -125,37 +134,41 @@ function fish_right_prompt --description 'Write out the right prompt'
   set --function red_esc (set_color red)
   set --function normal_esc $__fish_prompt_normal
 
-  # Set empty variables for fields
-  for name in $background_fieldnames
-    set --function "$name"
-  end
-
-  # Wait for background jobs to finish or timeout
-  while true
-    set --local any_unfinished false
+  if set --query FISH_RIGHT_PROMPT_USE_BACKGROUND
+    # Set empty variables for fields
     for name in $background_fieldnames
-      if begin
-          not set --query "$name"[1]
-          and not user-tmp-file query "$name"_"$id"
-        end
-        set any_unfinished true
-      else
-        set "$name" (user-tmp-file read "$name"_"$id")
-        set --query "$name"[1]; or set "$name" ""
-        user-tmp-file rm "$name"_"$id"
-      end
+      set --function "$name"
     end
 
-    begin; not $any_unfinished; or [ "$timeout" -le 0 ]; end; and break
+    # Wait for background jobs to finish or timeout
+    while true
+      set --local any_unfinished false
+      for name in $background_fieldnames
+        if begin
+            not set --query "$name"[1]
+            and not user-tmp-file query "$name"_"$id"
+          end
+          set any_unfinished true
+        else
+          set "$name" (user-tmp-file read "$name"_"$id")
+          set --query "$name"[1]; or set "$name" ""
+          user-tmp-file rm "$name"_"$id"
+        end
+      end
 
-    set --function timeout (math "$timeout - $interval")
-    sleep "$interval"
+      begin; not $any_unfinished; or [ "$timeout" -le 0 ]; end; and break
+
+      set --function timeout (math "$timeout - $interval")
+      sleep "$interval"
+    end
   end
 
   # If desired, create default values for background jobs that took too long
-  set --query "fish_git_prompt_buffer"[1]
-  or set --function "fish_git_prompt_buffer" \
-    "git:$red_esc timeout$normal_esc"
+  if set --query FISH_PROMPT_FULL_FEATURED
+    set --query "fish_git_prompt_buffer"[1]
+    or set --function "fish_git_prompt_buffer" \
+      "git:$red_esc timeout$normal_esc"
+  end
 
   # Output non-empty fields
   set --function separator
