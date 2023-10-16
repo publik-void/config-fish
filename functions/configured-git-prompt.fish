@@ -54,6 +54,10 @@ function configured-git-prompt --wraps fish_git_prompt
       set -g __fish_git_prompt_color_cleanstate green --bold
   end
 
-  string sub --start 2 --end -1 -- (string trim -- (fish_git_prompt $argv))
+  # string sub --start 2 --end -1 -- (string trim -- (fish_git_prompt $argv))
+  # The above rewritten for compatibility:
+  set --local output (string trim -- (fish_git_prompt $argv))
+  string sub --start 2 --length \
+    (math --scale=0 "max("(string length -- $output)" - 2, 0)") -- "$output"
 end
 
