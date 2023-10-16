@@ -10,7 +10,7 @@ if status is-interactive
     set --global FISH_PROMPT_FULL_FEATURED
   end
   switch "$hostname"
-  case lasse-raspberrypi-0 lasse-raspberrypi-1
+  case lasse-raspberrypi-0 lasse-raspberrypi-1 lasse-lubuntu-0
     # (don't use background processing in `fish_right_prompt` on these hosts)
   case "*"
     set --global FISH_RIGHT_PROMPT_USE_BACKGROUND
