@@ -58,6 +58,6 @@ function configured-git-prompt --wraps fish_git_prompt
   # The above rewritten for compatibility:
   set --local output (string trim -- (fish_git_prompt $argv))
   string sub --start 2 --length \
-    (math --scale=0 "max("(string length -- $output)" - 2, 0)") -- "$output"
+    (math --scale=0 (string length -- $output) - 2) -- "$output"
 end
 
