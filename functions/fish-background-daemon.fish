@@ -237,7 +237,7 @@ Environment variables:
     end
   end
   set --local base_directory \
-    "$base_directory_dirname/$base_directory_basename_prefix-u$(id -u)-g$(id -g)"
+    "$base_directory_dirname/$base_directory_basename_prefix-u"(id -u)"-g"(id -g)
   set --local directory "$base_directory/$fish_pid"
   set --local common_file "$directory/.$common_buffer_name"
 
@@ -310,7 +310,7 @@ Environment variables:
   else if [ "$subcommand" = "eval" ]
     begin
       test -p "$common_file"
-      and [ "$(count (ls "$directory/"))" -gt 0 ]
+      and [ (count (ls "$directory/")) -gt 0 ]
     end
     or fish-background-daemon mk
 

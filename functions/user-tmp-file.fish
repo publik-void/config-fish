@@ -47,7 +47,7 @@ function user-tmp-file --description \
       if set --query FISH_USER_TMP_FILE_SUBDIR
         set subdir "$FISH_USER_TMP_FILE_SUBDIR"
       else
-        set subdir "fish-user-tmp-files-u$(id -u)-g$(id -g)"
+        set subdir "fish-user-tmp-files-u"(id -u)"-g"(id -g)
         set --global --export FISH_USER_TMP_FILE_SUBDIR "$subdir"
       end
 

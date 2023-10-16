@@ -22,7 +22,7 @@ function fish_mode_prompt --description "Display the `vi` mode for the prompt"
       or set --local --erase cpcp_encryption_key_mtime
       if begin set --query CPCP_ENCRYPTION_KEY_DELTA
           and begin not set --query cpcp_encryption_key_mtime
-            or [ (math "$(date "+%s") - $cpcp_encryption_key_mtime") -gt \
+            or [ (math (date "+%s") - "$cpcp_encryption_key_mtime") -gt \
               "$CPCP_ENCRYPTION_KEY_DELTA" ]
           end
         end
