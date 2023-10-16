@@ -5,16 +5,16 @@
 # integration may presumably be subject to change over different versions.
 
 if status is-interactive # I hope it's not needed otherwise
-  set --function conda_executable
+  set --local conda_executable
   for candidate in \
     "conda" \
     "$HOME/anaconda3/bin/conda" \
     "$HOME/miniconda3/bin/conda"
     if type -q "$candidate"
-      set --function conda_executable "$candidate"
+      set conda_executable "$candidate"
     end
   end
-  if set --function --query conda_executable[1]
+  if set --query conda_executable[1]
     eval $conda_executable "shell.fish" "hook" $argv | source
   end
 end

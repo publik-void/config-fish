@@ -15,7 +15,7 @@ function prompt-time --description "Utility to record and output fish \
   else if set --query _flag_elapsed
     argparse --ignore-unknown "toc=!_validate_int" -- $argv
     if [ $status != 0 ]; return 1; end
-    if ! set --query _flag_toc; set --function _flag_toc (date "+%s"); end
+    if ! set --query _flag_toc; set _flag_toc (date "+%s"); end
     set --local tics (prompt-time $argv)
     set --local return_value $status
     if [ $return_value != 0 ]; return $return_value; end
@@ -48,17 +48,18 @@ function prompt-time --description "Utility to record and output fish \
       and ! set --query _flag_read
       and ! set --query _flag_number
     end
-    set --function _flag_number 1
+    set _flag_number 1
   end
-  if set --query _flag_number; set --function _flag_read "--read"; end
+  if set --query _flag_number; set _flag_read "--read"; end
 
-  set --function return_value 0
+  set --local return_value 0
   if set --query _flag_read
+    set --local output
+
     if set --query _flag_number
       set --local is $_flag_number
       #if [ (count $is) = 0 ]; set is 1; end
 
-      set --function output
       for i in $is
         set --local _i (math --scale=0 -$i)
         if set --query prompt_opening_time_buffer[$_i]
@@ -68,7 +69,7 @@ function prompt-time --description "Utility to record and output fish \
         end
       end
     else
-      set --function output $prompt_opening_time_buffer[-1..1]
+      set output $prompt_opening_time_buffer[-1..1]
     end
 
     if begin [ (count $output) = 0 ]

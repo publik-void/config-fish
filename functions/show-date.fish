@@ -11,39 +11,39 @@ function show-date --description "Function to format unix times to my liking, \
       and not set --query _flag_time
       and not set --query _flag_seconds
     end
-    set --function _flag_date --date
-    set --function _flag_time --time
-    set --function _flag_seconds --seconds
+    set _flag_date --date
+    set _flag_time --time
+    set _flag_seconds --seconds
   end
 
-  if set --query _flag_seconds; set --function _flag_time --time; end
+  if set --query _flag_seconds; set _flag_time --time; end
 
-  set --function default_sep " "
-  set --function default_date_sep "-"
-  set --function default_time_sep ":"
+  set --local default_sep " "
+  set --local default_date_sep "-"
+  set --local default_time_sep ":"
 
   if set --query _flag_all_sep
-    set --function default_sep $_flag_all_sep
-    set --function default_date_sep $_flag_all_sep
-    set --function default_time_sep $_flag_all_sep
+    set default_sep $_flag_all_sep
+    set default_date_sep $_flag_all_sep
+    set default_time_sep $_flag_all_sep
   end
 
   if not set --query _flag_sep
-    set --function _flag_sep $default_sep
+    set _flag_sep $default_sep
   end
   if not set --query _flag_date_sep
-    set --function _flag_date_sep $default_date_sep
+    set _flag_date_sep $default_date_sep
   end
   if not set --query _flag_time_sep
-    set --function _flag_time_sep $default_time_sep
+    set _flag_time_sep $default_time_sep
   end
 
-  set --function default_timezone_sep $_flag_time_sep
+  set --local default_timezone_sep $_flag_time_sep
   if not set --query _flag_timezone_sep
-    set --function _flag_timezone_sep $default_timezone_sep
+    set _flag_timezone_sep $default_timezone_sep
   end
 
-  set --function format "+"
+  set --local format "+"
   if set --query _flag_date
     if set --query _flag_short_year
       set --append format "%y"
@@ -65,7 +65,7 @@ function show-date --description "Function to format unix times to my liking, \
   end
   set format (string join "" $format)
 
-  set --function timezone
+  set --local timezone
   if set --query _flag_timezone
     set --local tz (date "+%z")
     set timezone (string join "" \
@@ -74,8 +74,8 @@ function show-date --description "Function to format unix times to my liking, \
       (string sub --start=4 $tz))
   end
 
-  set --function directive
-  set --function platform (uname)
+  set --local directive
+  set --local platform (uname)
   if [ $platform = Darwin ]
     set directive "-r "
   else if [ $platform = Linux ]

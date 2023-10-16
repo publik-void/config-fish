@@ -3,12 +3,13 @@ function set-cpcp-encryption-key
     "q/quiet" "r/random=?" "d/delta=!_validate_int --min 0" \
     -- $argv; or return $status
 
-  set --function key_color yellow
+  set --local key_color yellow
 
+  set --local key
   if [ (count $argv) = 0 ]; and set --query _flag_random; and type -q cpcp
-    set --function key
+    set key # Could omit this and rewrite the conditional
   else if [ (count $argv) = 1 ]; and type -q cpcp
-    set --function key "$argv[1]"
+    set key "$argv[1]"
   else
     user-tmp-file rm "cpcp-encryption-key-mtime"
     user-tmp-file rm "cpcp-encryption-key"
@@ -16,29 +17,28 @@ function set-cpcp-encryption-key
     return $status
   end
 
-  set --function time (date "+%s")
-  set --function cpcp_encryption_key_mtime \
+  set --local time (date "+%s")
+  set --local cpcp_encryption_key_mtime \
     (user-tmp-file read "cpcp-encryption-key-mtime" 2> /dev/null)
-  or set --function --erase cpcp_encryption_key_mtime
+  or set --local --erase cpcp_encryption_key_mtime
   if begin not set --query _flag_delta
       or not set --query cpcp_encryption_key_mtime
       or [ (math "$time - $cpcp_encryption_key_mtime") -gt "$_flag_delta" ]
     end
 
-    set --function previous_key \
+    set --local previous_key \
       (user-tmp-file read "cpcp-encryption-key" 2> /dev/null)
-    or set --function --erase previous_key
+    or set --local --erase previous_key
 
+    set --local rnd
     if set --query _flag_random
       if not set --query _flag_random[1]
         set _flag_random "32"
       end
 
-      set --function n_bytes (math --scale=0 "ceil($_flag_random / 4) * 3")
-      set --function rnd (cpcp --base64 rand $n_bytes)
-      set --function rnd (string sub --length $_flag_random "$rnd")
-    else
-      set --function rnd
+      set --local n_bytes (math --scale=0 "ceil($_flag_random / 4) * 3")
+      set rnd (cpcp --base64 rand $n_bytes)
+      set rnd (string sub --length $_flag_random "$rnd")
     end
 
     user-tmp-file write "cpcp-encryption-key-mtime" "$time"

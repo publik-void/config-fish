@@ -1,20 +1,20 @@
 function fish_greeting
-  set --function label_color normal
-  set --function item_color yellow
-  set --function failure_color red
-  set --function failure_string "(failure)"
-  set --function separator_color green
-  set --function separator " | "
+  set --local label_color normal
+  set --local item_color yellow
+  set --local failure_color red
+  set --local failure_string "(failure)"
+  set --local separator_color green
+  set --local separator " | "
 
-  set --function magazine_shorthands p c d u f t
-  set --function magazine_labels \
+  set --local magazine_shorthands p c d u f t
+  set --local magazine_labels \
     "previous prompt" \
     "previous command" \
     "datetime" \
     "user" \
     "fish path" \
     "terminal"
-  set --function magazine_commands \
+  set --local magazine_commands \
     "show-date (prompt-time --number=2) --date --time" \
     "show-date (command-time) --date --time" \
     "show-date --date --time" \
@@ -22,15 +22,18 @@ function fish_greeting
     "status fish-path" \
     "echo $TERM"
 
-  set --function n (count $magazine_shorthands)
-  set --function is (seq0 $n)
+  set --local n (count $magazine_shorthands)
+  set --local is (seq0 $n)
 
+  set --local magazine_flags
+  set --local magazine_longforms
+  set --local magazine_args
   for i in $is
-    set --function magazine_flags[$i] \
+    set magazine_flags[$i] \
       (echo $magazine_labels[$i] | sed -e 's/ /_/g; s/^/_flag_/')
-    set --function magazine_longforms[$i] \
+    set magazine_longforms[$i] \
       (echo $magazine_labels[$i] | sed -e 's/ /-/g')
-    set --function magazine_args[$i] \
+    set magazine_args[$i] \
       "$magazine_shorthands[$i]/$magazine_longforms[$i]"
   end
 
@@ -43,7 +46,7 @@ function fish_greeting
       if set --query $magazine_flags[$i]
         set --erase $magazine_flags[$i]
       else
-        set --function $magazine_flags[$i] "--$magazine_longforms[$i]"
+        set $magazine_flags[$i] "--$magazine_longforms[$i]"
       end
     end
   else
@@ -56,16 +59,16 @@ function fish_greeting
         fish_greeting $_flag_newlines --previous-prompt --previous-command \
           --labels
       end
-      set --function _flag_user --user
-      set --function _flag_fish_path --fish-path
-      set --function _flag_terminal --terminal
-      set --function _flag_datetime --datetime
+      set _flag_user --user
+      set _flag_fish_path --fish-path
+      set _flag_terminal --terminal
+      set _flag_datetime --datetime
     end
   end
 
-  set --function labels
-  set --function items
-  set --function colors
+  set --local labels
+  set --local items
+  set --local colors
 
   for i in $is
     if set --query $magazine_flags[$i]
@@ -80,8 +83,8 @@ function fish_greeting
     end
   end
 
-  set --function m (count $labels)
-  set --function js (seq0 $m)
+  set --local m (count $labels)
+  set --local js (seq0 $m)
 
   for j in $js
     if set --query _flag_labels

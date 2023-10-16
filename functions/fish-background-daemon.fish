@@ -1,5 +1,5 @@
 function fish-background-daemon
-  set --function usage_message "\
+  set --local usage_message "\
 Usage:
   fish-background-daemon eval [commands ...]
   fish-background-daemon status
@@ -59,19 +59,19 @@ Environment variables:
     daemons."
 
   # Constant parameters
-  set --function base_directory_dirnames_list "/dev/shm" "/run/shm" "/tmp"
-  set --function base_directory_basename_prefix "fish-background-daemons"
-  set --function common_buffer_name "common"
-  set --function mgr_interval "600"
-  set --function mgr_delta "300" # Must be smaller than `mgr_interval`
+  set --local base_directory_dirnames_list "/dev/shm" "/run/shm" "/tmp"
+  set --local base_directory_basename_prefix "fish-background-daemons"
+  set --local common_buffer_name "common"
+  set --local mgr_interval "600"
+  set --local mgr_delta "300" # Must be smaller than `mgr_interval`
 
   # Get subcommand
   if not set --query argv[1]
     echo $usage_message >&2
     return 1
   end
-  set --function subcommand $argv[1]
-  set --function argv $argv[2..-1]
+  set --local subcommand $argv[1]
+  set --local argv $argv[2..-1]
 
   # Handle daemon subcommands
   if [ "$subcommand" = "daemon" ]
@@ -80,8 +80,8 @@ Environment variables:
       echo $usage_message >&2
       return 1
     end
-    set --function daemon_subcommand $argv[1]
-    set --function argv $argv[2..-1]
+    set --local daemon_subcommand $argv[1]
+    set argv $argv[2..-1]
 
     if [ "$daemon_subcommand" = "exit" ]
       argparse "d/delta=!_validate_int --min 1" -- $argv
@@ -212,9 +212,9 @@ Environment variables:
   end
 
   # Determine directories
-  set --function base_directory_dirname
+  set --local base_directory_dirname
   if set --query FISH_BACKGROUND_DAEMON_BASE_DIRECTORY_DIRNAME
-    set --function base_directory_dirname \
+    set base_directory_dirname \
       "$FISH_BACKGROUND_DAEMON_BASE_DIRECTORY_DIRNAME"
     if not test -d "$base_directory_dirname/"
       echo "fish-background-daemon:" \
@@ -223,11 +223,11 @@ Environment variables:
   else
     for dirname in $base_directory_dirnames_list
       if test -d "$dirname/"
-        set --function base_directory_dirname "$dirname"
+        set base_directory_dirname "$dirname"
         break
       end
     end
-    if set --function --query base_directory_dirname[1]
+    if set --query base_directory_dirname[1]
       set --global --export FISH_BACKGROUND_DAEMON_BASE_DIRECTORY_DIRNAME \
         "$base_directory_dirname"
     else
@@ -236,10 +236,10 @@ Environment variables:
       return 1
     end
   end
-  set --function base_directory \
+  set --local base_directory \
     "$base_directory_dirname/$base_directory_basename_prefix-u$(id -u)-g$(id -g)"
-  set --function directory "$base_directory/$fish_pid"
-  set --function common_file "$directory/.$common_buffer_name"
+  set --local directory "$base_directory/$fish_pid"
+  set --local common_file "$directory/.$common_buffer_name"
 
   # Handle non-daemon subcommands (that depend on the above setup)
   if [ "$subcommand" = "mk" ]

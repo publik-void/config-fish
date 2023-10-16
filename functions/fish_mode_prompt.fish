@@ -1,6 +1,6 @@
 function fish_mode_prompt --description "Display the `vi` mode for the prompt"
-  set --function last_status $status
-  set --function defer_to_fish_prompt false
+  set --local last_status $status
+  set --local defer_to_fish_prompt false
 
   if [ $fish_bind_mode = insert ]
     if ! set --query coming_from_non_insert_mode
@@ -17,9 +17,9 @@ function fish_mode_prompt --description "Display the `vi` mode for the prompt"
         set --global --erase new_greeting_delta_exceeded
       end
 
-      set --function cpcp_encryption_key_mtime \
+      set --local cpcp_encryption_key_mtime \
         (user-tmp-file read "cpcp-encryption-key-mtime" 2> /dev/null)
-      or set --function --erase cpcp_encryption_key_mtime
+      or set --local --erase cpcp_encryption_key_mtime
       if begin set --query CPCP_ENCRYPTION_KEY_DELTA
           and begin not set --query cpcp_encryption_key_mtime
             or [ (math "$(date "+%s") - $cpcp_encryption_key_mtime") -gt \
