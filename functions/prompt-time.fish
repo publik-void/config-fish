@@ -13,7 +13,7 @@ function prompt-time --description "Utility to record and output fish \
     if [ (count $unix_times) != 0 ]; show-date $unix_times; end
     return $status
   else if set --query _flag_elapsed
-    argparse --ignore-unknown "toc=!_validate_int" -- $argv
+    argparse --ignore-unknown "t-toc=!_validate_int" -- $argv
     if [ $status != 0 ]; return 1; end
     if ! set --query _flag_toc; set _flag_toc (date "+%s"); end
     set --local tics (prompt-time $argv)

@@ -128,8 +128,12 @@ Environment variables:
       # the first (e.g. when sending multiple exits).
       # `fish` won't put `echo` or even `/bin/echo` into the background and thus
       # I use `tee` to do the job.
-      set --global FISH_DAEMON_FILE \
-        (path normalize -- "$directory/$fish_pid")
+      if type -q path
+        set --global FISH_DAEMON_FILE \
+          (path normalize -- "$directory/$fish_pid")
+      else
+        set --global FISH_DAEMON_FILE "$directory/$fish_pid"
+      end
       if test -e "$FISH_DAEMON_FILE"; rm -r "$FISH_DAEMON_FILE"; end
       fish-background-daemon daemon update-time
       touch "$FISH_DAEMON_FILE"; chmod 600 "$FISH_DAEMON_FILE"

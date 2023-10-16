@@ -11,7 +11,7 @@ function command-time --description "Utility to output fish command history
     if [ (count $unix_times) != 0 ]; show-date $unix_times; end
     return $status
   else if set --query _flag_elapsed
-    argparse --ignore-unknown "toc=!_validate_int" -- $argv
+    argparse --ignore-unknown "t-toc=!_validate_int" -- $argv
     if [ $status != 0 ]; return 1; end
     if ! set --query _flag_toc; set _flag_toc (date "+%s"); end
     set --local tics (command-time $argv)
@@ -32,7 +32,7 @@ function command-time --description "Utility to output fish command history
 
   set --local return_value 0
   if set --query _flag_read
-    argparse --ignore-unknown "override-tic=+!_validate_int" -- $argv
+    argparse --ignore-unknown "o-override-tic=+!_validate_int" -- $argv
     if [ $status != 0 ]; return 1; end
 
     if ! set --query _flag_override_tic
