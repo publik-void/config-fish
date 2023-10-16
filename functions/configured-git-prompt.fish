@@ -57,7 +57,11 @@ function configured-git-prompt --wraps fish_git_prompt
   # string sub --start 2 --end -1 -- (string trim -- (fish_git_prompt $argv))
   # The above rewritten for compatibility:
   set --local output (string trim -- (fish_git_prompt $argv))
-  string sub --start 2 --length \
-    (math --scale=0 (string length -- $output) - 2) -- "$output"
+  set --local length (string length -- "$output")
+  if [ $length -gt 2 ]
+    string sub --start 2 --length (math --scale=0 "$length - 2") -- "$output"
+  else
+    echo
+  end
 end
 
