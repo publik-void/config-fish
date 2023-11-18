@@ -16,7 +16,7 @@ if status is-interactive
     set --global FISH_RIGHT_PROMPT_USE_BACKGROUND
   end
 
-  type -q mosh; and set --global --export MOSH_PREDICTION_DISPLAY always
+  command -q mosh; and set --global --export MOSH_PREDICTION_DISPLAY always
 
   set fish_escape_delay_ms 20
 

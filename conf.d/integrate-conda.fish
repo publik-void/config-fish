@@ -10,7 +10,7 @@ if status is-interactive # I hope it's not needed otherwise
     "conda" \
     "$HOME/anaconda3/bin/conda" \
     "$HOME/miniconda3/bin/conda"
-    if type -q "$candidate"
+    if command -q "$candidate"
       set conda_executable "$candidate"
     end
   end
