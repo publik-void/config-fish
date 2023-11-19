@@ -3,5 +3,5 @@
 !/conf.d/
 !/functions/
 !/completions/
-!/latex-docker
+!/aux
 /completions/poetry.fish

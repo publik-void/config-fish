@@ -1,7 +1,4 @@
 if status is-interactive
-  set --global FISH_NEW_GREETING_DELTA (math 15 x 60)
-  set --global CPCP_ENCRYPTION_KEY_DELTA (math 16 x 60 x 60)
-
   # NOTE: The `hostname` variable is available since fish version 3.0.0
   switch "$hostname"
   case lasse-raspberrypi-1
