@@ -56,12 +56,14 @@ function configured-git-prompt --wraps fish_git_prompt
 
   # set str (fish_git_prompt $argv)
 
-  # It's ridiculous, but this is actually faster than `fish_git_prompt`
-  # TODO: Set the interpreter (bash or zsh) at startup
   # TODO: Set the variables to customize the output and also do trimming in bash
   set git_prompt_sh "$__fish_config_dir/aux/git-prompt.sh"
-  if test -f "$git_prompt_sh"
-    set str (bash -c "source \"$git_prompt_sh\"; __git_ps1")
+  if begin
+        set --query git_prompt_interpreter[1]
+        and test -f "$git_prompt_sh"
+      end
+    # It's ridiculous, but this is actually faster than `fish_git_prompt`.
+    set str ($git_prompt_interpreter -c "source \"$git_prompt_sh\"; __git_ps1")
   else
     return
   end
