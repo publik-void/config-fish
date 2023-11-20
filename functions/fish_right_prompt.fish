@@ -1,4 +1,4 @@
-function fish_right_prompt --description 'Write out the right prompt'
+function fish_right_prompt
   # NOTE: I had this elaborate function with background daemons and FIFOs and
   # everything here previously, but it's just too complex and error-prone.
   # Sadly, Fish will probably not implement subshells or asynchronous function
@@ -6,11 +6,12 @@ function fish_right_prompt --description 'Write out the right prompt'
   # simple and efficient.
 
   set --local last_status $status
-  set --local cwd (pwd)
 
-  configured-status-prompt $last_status
-  configured-git-prompt
-  configured-guix-prompt
-  configured-cwd-prompt $cwd
-  configured-time-prompt
+  prompt-right-status $last_status
+  eval-async-latched prompt-right-git "\
+source '$__fish_config_dir/functions/prompt-right-git.fish'
+prompt-right-git '$(pwd)'"
+  prompt-right-guix
+  prompt-right-cwd
+  prompt-right-time
 end

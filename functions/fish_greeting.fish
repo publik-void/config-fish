@@ -18,7 +18,7 @@ function fish_greeting
     "show-date (prompt-time --number=2) --date --time" \
     "show-date (command-time) --date --time" \
     "show-date --date --time" \
-    "echo (whoami)@(hostname)" \
+    "echo $USER@$hostname" \
     "status fish-path" \
     "echo $TERM"
 
@@ -28,11 +28,11 @@ function fish_greeting
   set --local magazine_flags
   set --local magazine_longforms
   set --local magazine_args
+
+  set magazine_flags (string replace " " "_" $magazine_labels)
+  set magazine_longforms (string replace " " "-" $magazine_labels)
   for i in $is
-    set magazine_flags[$i] \
-      (echo $magazine_labels[$i] | sed -e 's/ /_/g; s/^/_flag_/')
-    set magazine_longforms[$i] \
-      (echo $magazine_labels[$i] | sed -e 's/ /-/g')
+    set magazine_flags[$i] "_flag_$magazine_flags[$i]"
     set magazine_args[$i] \
       "$magazine_shorthands[$i]/$magazine_longforms[$i]"
   end
@@ -55,10 +55,10 @@ function fish_greeting
     if for i in $is
         and not set --query $magazine_flags[$i]
       end
-      if [ (count (prompt-time --number 2)) != 0 ]
-        fish_greeting $_flag_newlines --previous-prompt --previous-command \
-          --labels
-      end
+      # if [ (count (prompt-time --number 2)) != 0 ]
+      #   fish_greeting $_flag_newlines --previous-prompt --previous-command \
+      #     --labels
+      # end
       set _flag_user --user
       set _flag_fish_path --fish-path
       set _flag_terminal --terminal

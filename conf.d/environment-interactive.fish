@@ -1,5 +1,5 @@
 if status is-interactive
-  command -q mosh; and set --global --export MOSH_PREDICTION_DISPLAY always
+  set --global --export MOSH_PREDICTION_DISPLAY always
 
   set fish_escape_delay_ms 20
 
@@ -9,18 +9,28 @@ if status is-interactive
   set fish_cursor_replace_one underscore
   set fish_vi_force_cursor # Note: Seems to be necessary, at least for iTerm2…
 
-  set --global git_prompt_interpreter
-  for candidate in zsh bash
-    set git_prompt_interpreter (command -v $candidate)
-    set --query git_prompt_interpreter[1] && break
+  set --global --export __fish_git_prompt_show_informative_status 1
+  set --global --export __fish_git_prompt_hide_untrackedfiles 1
+  set --global --export __fish_git_prompt_color_branch magenta #--bold
+  set --global --export __fish_git_prompt_showupstream "informative"
+  set --global --export __fish_git_prompt_char_upstream_ahead "↑"
+  set --global --export __fish_git_prompt_char_upstream_behind "↓"
+  set --global --export __fish_git_prompt_char_upstream_prefix ""
+  set --global --export __fish_git_prompt_char_stagedstate "●"
+  set --global --export __fish_git_prompt_char_dirtystate "✚"
+  set --global --export __fish_git_prompt_char_untrackedfiles "…"
+  set --global --export __fish_git_prompt_char_conflictedstate "✖"
+  set --global --export __fish_git_prompt_char_cleanstate "✔"
+  set --global --export __fish_git_prompt_color_dirtystate blue
+  set --global --export __fish_git_prompt_color_stagedstate yellow
+  set --global --export __fish_git_prompt_color_untrackedfiles $fish_color_normal
+  set --global --export __fish_git_prompt_color_cleanstate green #--bold
+
+  set --global async_id "fish-async-$USER-$fish_pid-$(random)"
+  set --global async_dir
+  for candidate in /dev/shm /run/shm "$TMPDIR" /tmp
+    test -d "$candidate" && set async_dir "$candidate" && break
   end
-  set --export GIT_PS1_SHOWDIRTYSTATE true
-  set --export GIT_PS1_SHOWSTASHSTATE true
-  set --export GIT_PS1_SHOWUNTRACKEDFILES true
-  set --export GIT_PS1_SHOWUPSTREAM verbose
-  set --export GIT_PS1_COMPRESSSPARSESTATE true
-  set --export GIT_PS1_SHOWCONFLICTSTATE true
-  set --export GIT_PS1_SHOWCOLORHINTS true
 
   # TODO: Check the source code of `fish_update_completions` to check if it
   # always writes to `$HOME/.local/share/fish/generated_completions/`. Then, add

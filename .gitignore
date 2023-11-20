@@ -3,5 +3,4 @@
 !/conf.d/
 !/functions/
 !/completions/
-!/aux
 /completions/poetry.fish

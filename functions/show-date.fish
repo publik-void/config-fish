@@ -85,11 +85,14 @@ function show-date --description "Function to format unix times to my liking, \
     return 2
   end
 
-  if [ (count $argv) = 0 ]; set argv (date "+%s"); end
-
-  for unix_time in $argv
-    set --local time (eval "date $directive$unix_time \"$format\"")
-    echo "$time$timezone"
+  if not set --query argv[1]
+    date "$format"
+  else
+    for unix_time in $argv
+      echo "$format"
+      set --local time (eval "date $directive$unix_time \"$format\"")
+      echo "$time$timezone"
+    end
   end
 end
 
