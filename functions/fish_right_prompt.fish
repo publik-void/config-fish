@@ -8,9 +8,13 @@ function fish_right_prompt
   set --local last_status $status
 
   prompt-right-status $last_status
-  eval-async-latched prompt-right-git "\
+  if $use_async_right_prompt
+    eval-async-latched prompt-right-git "\
 source '$__fish_config_dir/functions/prompt-right-git.fish'
 prompt-right-git '$(pwd)'"
+  else
+    prompt-right-git
+  end
   prompt-right-guix
   prompt-right-cwd
   prompt-right-time
