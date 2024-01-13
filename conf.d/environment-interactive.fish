@@ -32,6 +32,12 @@ if status is-interactive
     test -d "$candidate" && set async_dir "$candidate" && break
   end
 
+  set --global use_async_right_prompt true
+  switch "$hostname"
+    case "test-host" "brisi" "zuestoll"
+      set use_async_right_prompt false
+  end
+
   # TODO: Check the source code of `fish_update_completions` to check if it
   # always writes to `$HOME/.local/share/fish/generated_completions/`. Then, add
   # code here that checks the modification time of that folder if it exists or
