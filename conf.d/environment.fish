@@ -6,7 +6,7 @@ command -q vim  && set --global --export EDITOR vim
 command -q less && set --global --export PAGER  less # Consider using neovim?
 
 begin
-  set --local paths "$HOME/bin" "$HOME/.juliaup/bin"
+  set --local paths "$HOME/bin" "$HOME/.local/bin" "$HOME/.juliaup/bin"
 
   if type -q fish_add_path
     for path in $paths
