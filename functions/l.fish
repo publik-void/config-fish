@@ -21,9 +21,7 @@ function l --wraps=ls
       set --prepend -- opts -d
     end
   end
-  # NOTE: Turns out some versions of `ls` don't support the `--` terminator
-  # ls $opts -- $args | \
-  ls $opts $args | \
+  ls $opts -- $args | \
     string match --regex --invert -- "^total .*[^:]\$"
 end
 
