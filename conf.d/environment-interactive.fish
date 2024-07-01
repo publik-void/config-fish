@@ -34,7 +34,7 @@ if status is-interactive
 
   set --global use_async_right_prompt true
   switch "$hostname"
-    case "test-host" "brisi" "zuestoll"
+    case "test-host"
       set use_async_right_prompt false
   end
 
