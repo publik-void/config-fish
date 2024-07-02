@@ -1,6 +1,9 @@
 if status is-interactive
   set --global --export MOSH_PREDICTION_DISPLAY always
 
+  # For Python `venv`/`poetry`
+  set --global --export VIRTUAL_ENV_DISABLE_PROMPT 1
+
   set fish_escape_delay_ms 20
 
   fish_vi_key_bindings

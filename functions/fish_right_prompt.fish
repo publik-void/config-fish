@@ -15,6 +15,7 @@ prompt-right-git '$(pwd)'"
   else
     prompt-right-git
   end
+  prompt-right-python-venv
   prompt-right-pyenv
   prompt-right-guix
   prompt-right-cwd
