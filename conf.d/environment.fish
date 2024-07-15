@@ -9,7 +9,7 @@ set --global --export PYENV_ROOT $HOME/.pyenv
 
 begin
   set --local paths "$HOME/bin" "$HOME/.local/bin" "$HOME/.juliaup/bin" \
-    "$PYENV_ROOT/bin"
+    "$PYENV_ROOT/bin" "$HOME/.cargo/bin"
 
   if type -q fish_add_path
     for path in $paths
