@@ -4,6 +4,14 @@ if status is-interactive
   # For Python `venv`/`poetry`
   set --global --export VIRTUAL_ENV_DISABLE_PROMPT 1
 
+  set --global --export NNN_OPTS HiRU
+  # TODO: This will move trashed files into `$HOME/.local/share/Trash` usually,
+  # also on macOS, instead of into the macOS trash. Fix this. Unfortunately, it
+  # is the same with `trash-cli` and `nnn` does not seem to support the other
+  # macOS-specific CLI trashers.
+  # I haven't looked for issues in the `nnn` GitHub repo yet.
+  set --global --export NNN_TRASH 2
+
   set fish_escape_delay_ms 20
 
   fish_vi_key_bindings
