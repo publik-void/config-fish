@@ -16,7 +16,7 @@ prompt-right-git '$(pwd)'"
     prompt-right-git
   end
   prompt-right-python-venv
-  prompt-right-pyenv
+  # prompt-right-pyenv # Disabled because of slow `pyenv` on Sequoia/Homebrew
   prompt-right-guix
   prompt-right-cwd
   prompt-right-time
