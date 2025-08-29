@@ -7,18 +7,17 @@ command -q less && set --global --export PAGER  less # Consider using neovim?
 
 set --global --export PYENV_ROOT $HOME/.pyenv
 
-begin
+# Prepend custom paths only in login shells. Thus, e.g. when opening a child
+# shell in a `conda` environment, `pyenv` will not override the
+# environment-specific `python3`, unless forced with `fish -l`.
+if status is-login
   set --local paths "$HOME/bin" "$HOME/.local/bin" "$HOME/.juliaup/bin" \
     "$PYENV_ROOT/bin" "$HOME/.cargo/bin"
 
   if type -q fish_add_path
-    for path in $paths
-      fish_add_path --path "$path"
-    end
+    fish_add_path --path $paths
   else
-    for path in $paths
-      set --append PATH "$path"
-    end
+    set --prepend PATH $paths
   end
 end
 
