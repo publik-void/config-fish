@@ -12,7 +12,7 @@ set --global --export PYENV_ROOT $HOME/.pyenv
 # environment-specific `python3`, unless forced with `fish -l`.
 if status is-login
   set --local paths "$HOME/bin" "$HOME/.local/bin" "$HOME/.juliaup/bin" \
-    "$PYENV_ROOT/bin" "$HOME/.cargo/bin"
+    "$PYENV_ROOT/bin" "$HOME/.cargo/bin" "$HOME/.ghcup/bin"
 
   if type -q fish_add_path
     fish_add_path --path $paths
