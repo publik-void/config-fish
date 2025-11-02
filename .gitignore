@@ -1,5 +1,7 @@
 /*
 !/.gitignore
+!/.gitmodules
 !/conf.d/
 !/functions/
 !/completions/
+!/submodules

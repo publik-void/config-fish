@@ -1,0 +1,4 @@
+[submodule "submodules/bass"]
+	path = submodules/bass
+	url = https://github.com/edc/bass.git
+	branch = master
