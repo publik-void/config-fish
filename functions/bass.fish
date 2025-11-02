@@ -1,0 +1,1 @@
+../submodules/bass/functions/bass.fish
