@@ -12,12 +12,22 @@ set --global --export PYENV_ROOT $HOME/.pyenv
 # environment-specific `python3`, unless forced with `fish -l`.
 if status is-login
   set --local paths "$HOME/bin" "$HOME/.local/bin" "$HOME/.juliaup/bin" \
-    "$PYENV_ROOT/bin" "$HOME/.cargo/bin" "$HOME/.ghcup/bin" \
+    "$HOME/.julia/bin" "$PYENV_ROOT/bin" "$HOME/.cargo/bin" "$HOME/.ghcup/bin" \
     "$HOME/.luarocks/bin"
 
   if type -q fish_add_path
-    fish_add_path --path $paths
+    # `--prepend` is default, but doesn't hurt to be explicit.
+    fish_add_path --prepend --path $paths
   else
+    # Filter out nonexistent directories like `fish_add_path` does and keept the
+    # order of `paths`.
+    set --local paths_existing
+    for path in $paths
+      if test -d $path
+        set --append paths_existing $path
+      end
+    end
+
     set --prepend PATH $paths
   end
 end
