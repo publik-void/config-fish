@@ -1,8 +1,13 @@
 # Note: there are plans to phase out universal variables and the recommendation
 # is to only do `set --global` here
 
+# `EDITOR` is theoretically meant for editors that work in less capable
+# terminals, but nowadays it's probably best to simply set both `EDITOR` and
+# `VSIUAL` to one's preferred editor.
 command -q vim  && set --global --export EDITOR vim
 command -q nvim && set --global --export EDITOR nvim
+set --query EDITOR && set --global --export VISUAL $EDITOR
+
 command -q less && set --global --export PAGER  less # Consider using neovim?
 
 set --global --export PYENV_ROOT $HOME/.pyenv
