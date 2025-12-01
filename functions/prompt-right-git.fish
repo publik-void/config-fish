@@ -1,5 +1,8 @@
 function prompt-right-git
-  set --query argv[1] && cd "$argv[1]"
+  if set --query argv[1]
+    set dir "$(pwd)"
+    cd "$argv[1]"
+  end
 
   set --local output "$(string trim -- "$(fish_git_prompt)")"
 
@@ -8,5 +11,9 @@ function prompt-right-git
   if [ "$length" -gt "0" ]
     echo "$(string sub --start 2 --length "$length" -- "$output") "
   end
+
+  set --query dir && cd "$dir"
+
+  return 0
 end
 
