@@ -8,7 +8,10 @@ command -q vim  && set --global --export EDITOR vim
 command -q nvim && set --global --export EDITOR nvim
 set --query EDITOR && set --global --export VISUAL $EDITOR
 
-command -q less && set --global --export PAGER less
+if command -q less
+  set --global --export PAGER less
+  set --global --export LESS -R -i -M --mouse --incsearch
+end
 
 # `LANG` is a bit like the last fallback for a locale. Set it if it's not
 # pre-set by something else. Some systems support `C.UTF-8` as a neutral Unicode
