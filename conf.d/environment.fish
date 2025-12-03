@@ -13,8 +13,8 @@ command -q less && set --global --export PAGER  less # Consider using neovim?
 # `LANG` is a bit like the last fallback for a locale. Set it if it's not
 # pre-set by something else. Some systems support `C.UTF-8` as a neutral Unicode
 # locale, but its benefit over `en_US.UTF-8` is marginal or at times even
-# negative. So we'll just stick with `en_US.UTF8` as a sane default.
-set --query LANG || set --global --export LANG "en_US.UTF8"
+# negative. So we'll just stick with `en_US.UTF-8` as a sane default.
+set --query LANG || set --global --export LANG "en_US.UTF-8"
 
 set --global --export PYENV_ROOT $HOME/.pyenv
 
