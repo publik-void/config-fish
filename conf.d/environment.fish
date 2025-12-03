@@ -10,12 +10,18 @@ set --query EDITOR && set --global --export VISUAL $EDITOR
 
 command -q less && set --global --export PAGER  less # Consider using neovim?
 
+# `LANG` is a bit like the last fallback for a locale. Set it if it's not
+# pre-set by something else. Some systems support `C.UTF-8` as a neutral Unicode
+# locale, but its benefit over `en_US.UTF-8` is marginal or at times even
+# negative. So we'll just stick with `en_US.UTF8` as a sane default.
+set --query LANG || set --global --export LANG "en_US.UTF8"
+
 set --global --export PYENV_ROOT $HOME/.pyenv
 
-# Prepend custom paths only in login shells. Thus, e.g. when opening a child
-# shell in a `conda` environment, `pyenv` will not override the
-# environment-specific `python3`, unless forced with `fish -l`.
 if status is-login
+  # Prepend custom paths only in login shells. Thus, e.g. when opening a child
+  # shell in a `conda` environment, `pyenv` will not override the
+  # environment-specific `python3`, unless forced with `fish -l`.
   set --local paths "$HOME/bin" "$HOME/.local/bin" "$HOME/.juliaup/bin" \
     "$HOME/.julia/bin" "$PYENV_ROOT/bin" "$HOME/.cargo/bin" "$HOME/.ghcup/bin" \
     "$HOME/.luarocks/bin"
