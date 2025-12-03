@@ -8,7 +8,7 @@ command -q vim  && set --global --export EDITOR vim
 command -q nvim && set --global --export EDITOR nvim
 set --query EDITOR && set --global --export VISUAL $EDITOR
 
-command -q less && set --global --export PAGER  less # Consider using neovim?
+command -q less && set --global --export PAGER  less
 
 # `LANG` is a bit like the last fallback for a locale. Set it if it's not
 # pre-set by something else. Some systems support `C.UTF-8` as a neutral Unicode
