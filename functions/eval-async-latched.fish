@@ -58,7 +58,7 @@ set data \"\$($command)\"
 if [ \$status = 0 ] && set --query data[1] && [ \"\$data\" != \"\" ]
   echo \"\$data\" > '$filename'
 else
-  rm '$filename'
+  rm -f '$filename'
 end
 " &
       disown $last_pid
