@@ -45,16 +45,12 @@ end
       set --local filename "$dirname/$name"
 
       $fish --no-config -c "\
-if not test -d '$dirname'
-  mkdir -p '$dirname'
-  test -d '$dirname' || return 1
-end
-test -e '$filename' || touch '$filename'
-test -f '$filename' || return 1
-test -O '$filename' || return 1
-test -w '$filename' || return 1
-
 set data \"\$($command)\"
+
+mkdir -p '$dirname' || return 1
+test ! -e '$filename' -o \
+  \( -f '$filename' -a -O '$filename' -a -w '$filename' \) || return 1
+
 if [ \$status = 0 ] && set --query data[1] && [ \"\$data\" != \"\" ]
   echo \"\$data\" > '$filename'
 else
@@ -63,12 +59,11 @@ end
 " &
       disown $last_pid
 
-      if test -e "$dirname"
-        if test -f "$filename"
-          cat "$filename"
-          return $status
-        end
-      end
+      # We could test for the existence of the file before `cat`ting it, but it
+      # seems like in rare cases, the file may be deleted by the disowned
+      # process just between the `test` and the `cat` command. Hence let's just
+      # assume that `cat` might fail and let it do so silently.
+      cat "$filename" 2> /dev/null
       return 0
     else
       echo "eval-async-latched: `async_dir[1]` or `async_id[1]` not set." >&2
