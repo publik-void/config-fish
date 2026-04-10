@@ -8,6 +8,7 @@ function fish_right_prompt
   set --local last_status $status
 
   prompt-right-status $last_status
+  # TODO: Use Starship?
   if $use_async_right_prompt
     eval-async-latched prompt-right-git "\
 source '$__fish_config_dir/functions/prompt-right-git.fish'
