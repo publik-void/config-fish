@@ -3,7 +3,7 @@
 
 # `EDITOR` is theoretically meant for editors that work in less capable
 # terminals, but nowadays it's probably best to simply set both `EDITOR` and
-# `VSIUAL` to one's preferred editor.
+# `VISUAL` to one's preferred editor.
 command -q vim  && set --global --export EDITOR vim
 command -q nvim && set --global --export EDITOR nvim
 set --query EDITOR && set --global --export VISUAL $EDITOR
