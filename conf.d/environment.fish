@@ -10,7 +10,9 @@ set --query EDITOR && set --global --export VISUAL $EDITOR
 
 if command -q less
   set --global --export PAGER less
-  set --global --export LESS -R -i -M --mouse --incsearch
+  # I chose to make a separate `config-less` repository, but I'll keep this here
+  # for now, commented out. Probably remove it at some point.
+  # set --global --export LESS -R -i -M --mouse --incsearch
 end
 
 # `LANG` is a bit like the last fallback for a locale. Set it if it's not
@@ -25,6 +27,8 @@ if status is-login
   # Prepend custom paths only in login shells. Thus, e.g. when opening a child
   # shell in a `conda` environment, `pyenv` will not override the
   # environment-specific `python3`, unless forced with `fish -l`.
+  # Keep in mind `~/.local/bin` seems like the newer standard nowadays compared
+  # to `~/bin`
   set --local paths "$HOME/bin" "$HOME/.local/bin" "$HOME/.juliaup/bin" \
     "$HOME/.julia/bin" "$PYENV_ROOT/bin" "$HOME/.cargo/bin" "$HOME/.ghcup/bin" \
     "$HOME/.luarocks/bin"
